@@ -1,0 +1,18 @@
+version: "2"
+cloud:
+    organization: ""
+    project: ""
+    hostname: ""
+sql:
+  - schema: "sql/schema"
+    queries: "sql/queries"
+    engine: "postgresql"
+    gen:
+      go:
+        out: "internal/database"
+        package: "database"
+overrides:
+    go: null
+plugins: []
+rules: []
+options: {}
