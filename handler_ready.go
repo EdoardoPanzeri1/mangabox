@@ -7,5 +7,5 @@ func handlerReadiness(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerErr(w http.ResponseWriter, r *http.Request) {
-	respondWithJSON(w, http.StatusInternalServerError, "Internal server errror")
+	respondWithJSON(w, http.StatusInternalServerError, "Internal server error")
 }
