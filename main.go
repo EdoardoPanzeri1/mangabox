@@ -28,14 +28,9 @@ func main() {
 		log.Fatal("Port environment variable is not set")
 	}
 
-	baseURL := os.Getenv("COMICWINE_BASE_URL")
+	baseURL := os.Getenv("JIKAN_BASE_URL")
 	if baseURL == "" {
 		log.Fatal("COMICWINE_BASE_URL environment is not set")
-	}
-
-	apiKey := os.Getenv("COMICWINE_API_KEY")
-	if apiKey == "" {
-		log.Fatal("COMICWINE_API_KEY environment is not set")
 	}
 
 	dbUrl := os.Getenv("DATABASE_URL")
@@ -56,7 +51,6 @@ func main() {
 	apiCfg := apiConfig{
 		DB:      dbQueries,
 		BaseURL: baseURL,
-		APIKey:  apiKey,
 	}
 
 	mux := http.NewServeMux()

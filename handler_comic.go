@@ -53,7 +53,7 @@ func (cfg *apiConfig) handlerVolumeDetail(w http.ResponseWriter, r *http.Request
 	defer resp.Body.Close()
 
 	var result struct {
-		Results ComicVineVolume `json:"results"`
+		Results Manga `json:"results"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
