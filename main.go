@@ -9,10 +9,13 @@ import (
 
 	"github.com/EdoardoPanzeri1/mangabox/internal/database"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 type apiConfig struct {
-	DB *database.Queries
+	DB      *database.Queries
+	BaseURL string
+	APIKey  string
 }
 
 func main() {
@@ -51,16 +54,20 @@ func main() {
 
 	// Set up API configuration
 	apiCfg := apiConfig{
-		DB: dbQueries,
+		DB:      dbQueries,
+		BaseURL: baseURL,
+		APIKey:  apiKey,
 	}
 
 	mux := http.NewServeMux()
 
 	// Register handler functions
-	mux.HandleFunc("/comics/", apiCfg.handlerGetComicByID)
+	mux.HandleFunc("GET /comics/", apiCfg.handlerGetComicByID)
+	mux.HandleFunc("GET /search/comics", apiCfg.handlerSearchComic)
+	mux.HandleFunc("GET /search/comics/", apiCfg.handlerVolumeDetail)
 
-	mux.HandleFunc("/v1/healthz", handlerReadiness)
-	mux.HandleFunc("/v1/err", handlerErr)
+	mux.HandleFunc("GET /v1/healthz", handlerReadiness)
+	mux.HandleFunc("GET /v1/err", handlerErr)
 
 	// Set up HTTP server
 	srv := &http.Server{

@@ -2,14 +2,14 @@ package main
 
 import "database/sql"
 
-// Database and ComicWiz configuration
+// Config holds the database and ComicVine configurations
 type Config struct {
 	DB      *sql.DB
 	BaseURL string
 	APIKey  string
 }
 
-// Parameters for a ComicWiz API request
+// ComicVineRequestParams holds the parameters for a ComicVine API request
 type ComicVineRequestParams struct {
 	Format    string
 	FieldList string
@@ -19,6 +19,7 @@ type ComicVineRequestParams struct {
 	Filter    string
 }
 
+// ComicVineVolume represents a single comic volume from ComicVine
 type ComicVineVolume struct {
 	ID          int    `json:"id"`
 	Name        string `json:"name"`
@@ -28,6 +29,7 @@ type ComicVineVolume struct {
 	Description string `json:"description"`
 }
 
+// ComicVineResponse represents the response from ComicVine API
 type ComicVineResponse struct {
 	Results []ComicVineVolume `json:"result"`
 }

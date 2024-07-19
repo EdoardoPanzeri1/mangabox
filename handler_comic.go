@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -33,5 +34,32 @@ func (cfg *apiConfig) handlerGetComicByID(w http.ResponseWriter, r *http.Request
 	if err := json.NewEncoder(w).Encode(comic); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 	}
+}
 
+func (cfg *apiConfig) handlerVolumeDetail(w http.ResponseWriter, r *http.Request) {
+	volumeID := r.URL.Query().Get("id")
+	if volumeID == "" {
+		respondWithError(w, http.StatusBadRequest, "Missing volume ID")
+		return
+	}
+
+	apiURL := fmt.Sprintf("%s/volume/4050-%s/?api_key=%s&format=json", cfg.BaseURL, volumeID, cfg.APIKey)
+
+	resp, err := http.Get(apiURL)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		respondWithError(w, http.StatusInternalServerError, "Failed to fetch from ComicVine API")
+		return
+	}
+	defer resp.Body.Close()
+
+	var result struct {
+		Results ComicVineVolume `json:"results"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Failed to decode response from ComicVine API")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, result.Results)
 }
