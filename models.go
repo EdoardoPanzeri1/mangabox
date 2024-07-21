@@ -110,3 +110,9 @@ type Manga struct {
 type APIResponse struct {
 	Data Manga `json:"data"`
 }
+
+type TManga struct {
+	Title    string `json:"title"`
+	Author   string `json:"author"`
+	ImageURL string `json:"image_url"`
+}

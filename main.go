@@ -55,15 +55,22 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	// Register handler functions
-	mux.HandleFunc("GET /manga", apiCfg.handlerSearchManga)
-	mux.HandleFunc("POST /manga", apiCfg.handlerGetManga)
-	//mux.HandleFunc("PUT /manga/{id}", apiCfg.handlerUpdateStatus)
+	// External Manga Search Endpoints
+	mux.HandleFunc("GET /search", apiCfg.handlerSearchManga)
+	mux.HandleFunc("POST /details", apiCfg.handlerGetManga)
 
-	//mux.HandleFunc("GET /users/{username}/catalog", apiCfg.handlerRetrieveCatalog)
+	// Manga Catalog Endpoints
+	//mux.HandleFunc("GET /mangas", apiCfg.handlerRetrieveCatalog)
+	//mux.HandleFunc("POST /mangas", apiCfg.handlerAddToCatalog)
+	//mux.HandleFunc("PUT /mangas/{id}", apiCfg.handlerStatusManga)
+	//mux.HandleFunc("DELETE /mangas/{id}", apiCfg.handlerDeleteManga)
 
-	// mux.HandleFunc("/register", apiCfg.handlerRegistration)
-	// mux.HandleFunc("/login", apiCfg.handlerLogin)
+	// User Authentication and Profile Management
+	// mux.HandleFunc("POST /register", apiCfg.handlerRegistration)
+	// mux.HandleFunc("POST /login", apiCfg.handlerLogin)
+	//mux.HandleFunc("GET /profile", apiCfg.handlerProfileInformation)
+	//mux.HandleFunc("PUT /profile", apiCfg.handlerUpdateInformation)
+
 	mux.HandleFunc("/v1/healthz", handlerReadiness)
 	mux.HandleFunc("/v1/err", handlerErr)
 

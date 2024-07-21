@@ -33,14 +33,56 @@ func (cfg *apiConfig) handlerSearchManga(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	log.Printf("Raw API response: %s\n", body)
-
-	var result interface{}
+	var result map[string]interface{}
 	if err := json.Unmarshal(body, &result); err != nil {
 		log.Printf("Error decoding response from Jikan API: %v\n", err)
 		respondWithError(w, http.StatusInternalServerError, "Failed to decode responde from Jikan API")
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, result)
+	dataRaw, ok := result["data"].([]interface{})
+	if !ok {
+		respondWithError(w, http.StatusInternalServerError, "Failed to decode response for Jikan")
+		return
+	}
+
+	var data []map[string]interface{}
+	for _, item := range dataRaw {
+		itemMap, ok := item.(map[string]interface{})
+		if ok {
+			data = append(data, itemMap)
+		}
+	}
+
+	transformedResult := transformResult(data)
+	respondWithJSON(w, http.StatusOK, transformedResult)
+}
+
+func transformResult(rawData []map[string]interface{}) []TManga {
+	var transformedResults []TManga
+
+	for _, item := range rawData {
+		title, exists := item["title"].(string)
+		if !exists {
+			continue
+		}
+
+		author, exists := item["author"].(string)
+		if !exists {
+			author = "Unknown Author"
+		}
+
+		imageURL, exists := item["image_url"].(string)
+		if !exists {
+			imageURL = "default_image_url.jpg"
+		}
+
+		transformedResults = append(transformedResults, TManga{
+			Title:    title,
+			Author:   author,
+			ImageURL: imageURL,
+		})
+	}
+
+	return transformedResults
 }
