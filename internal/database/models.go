@@ -7,9 +7,11 @@ package database
 import (
 	"database/sql"
 	"time"
+
+	"github.com/sqlc-dev/pqtype"
 )
 
-type Comic struct {
+type Manga struct {
 	ID              string
 	Title           string
 	IssueNumber     int32
@@ -19,6 +21,23 @@ type Comic struct {
 	Read            sql.NullBool
 	UserID          sql.NullString
 	UpdatedAt       sql.NullTime
+	Images          pqtype.NullRawMessage
+	Authors         pqtype.NullRawMessage
+	Serializations  pqtype.NullRawMessage
+	Genres          pqtype.NullRawMessage
+	ExplicitGenres  pqtype.NullRawMessage
+	Themes          pqtype.NullRawMessage
+	Demographics    pqtype.NullRawMessage
+	Score           sql.NullFloat64
+	ScoredBy        sql.NullInt32
+	Rank            sql.NullInt32
+	Popularity      sql.NullInt32
+	Members         sql.NullInt32
+	Favorites       sql.NullInt32
+	Synopsis        sql.NullString
+	Background      sql.NullString
+	Relations       pqtype.NullRawMessage
+	ExternalLinks   pqtype.NullRawMessage
 }
 
 type User struct {
@@ -29,10 +48,10 @@ type User struct {
 	ApiKey    string
 }
 
-type UserComic struct {
+type UserManga struct {
 	ID        int32
 	UserID    sql.NullString
-	ComicID   sql.NullString
+	MangaID   sql.NullString
 	Favorite  sql.NullBool
 	CreatedAt sql.NullTime
 }

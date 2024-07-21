@@ -9,7 +9,7 @@ import (
 	"net/url"
 )
 
-func (cfg *apiConfig) handlerSearchComic(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerSearchManga(w http.ResponseWriter, r *http.Request) {
 	searchQuery := r.URL.Query().Get("q")
 	if searchQuery == "" {
 		respondWithError(w, http.StatusBadRequest, "Missing search query")
