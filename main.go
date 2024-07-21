@@ -57,7 +57,7 @@ func main() {
 
 	// External Manga Search Endpoints
 	mux.HandleFunc("GET /search", apiCfg.handlerSearchManga)
-	mux.HandleFunc("POST /details", apiCfg.handlerGetManga)
+	mux.HandleFunc("GET /details", apiCfg.handlerGetManga)
 
 	// Manga Catalog Endpoints
 	//mux.HandleFunc("GET /mangas", apiCfg.handlerRetrieveCatalog)
