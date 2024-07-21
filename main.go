@@ -56,11 +56,16 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Register handler functions
-	mux.HandleFunc("GET /search/manga", apiCfg.handlerSearchManga)
-	mux.HandleFunc("GET /manga", apiCfg.handlerGetManga)
+	mux.HandleFunc("GET /manga", apiCfg.handlerSearchManga)
+	mux.HandleFunc("POST /manga", apiCfg.handlerGetManga)
+	//mux.HandleFunc("PUT /manga/{id}", apiCfg.handlerUpdateStatus)
 
-	mux.HandleFunc("GET /v1/healthz", handlerReadiness)
-	mux.HandleFunc("GET /v1/err", handlerErr)
+	//mux.HandleFunc("GET /users/{username}/catalog", apiCfg.handlerRetrieveCatalog)
+
+	// mux.HandleFunc("/register", apiCfg.handlerRegistration)
+	// mux.HandleFunc("/login", apiCfg.handlerLogin)
+	mux.HandleFunc("/v1/healthz", handlerReadiness)
+	mux.HandleFunc("/v1/err", handlerErr)
 
 	// Set up HTTP server
 	srv := &http.Server{

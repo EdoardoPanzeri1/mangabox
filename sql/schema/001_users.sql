@@ -3,8 +3,9 @@ CREATE TABLE users (
     id TEXT PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    name TEXT NOT NULL,
-    api_key TEXT UNIQUE NOT NULL
+    username VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL
 );
 
 -- +goose Down

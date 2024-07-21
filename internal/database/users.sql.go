@@ -7,53 +7,97 @@ package database
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :exec
-INSERT INTO users (id, created_at, updated_at, name, api_key)
-VALUES (
-    $1,
-    $2,
-    $3,
-    $4,
-    $5
-)
+INSERT INTO users (username, email, password_hash)
+VALUES ($1, $2, $3)
 `
 
 type CreateUserParams struct {
-	ID        string
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
-	Name      string
-	ApiKey    string
+	Username     string
+	Email        string
+	PasswordHash string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
-	_, err := q.db.ExecContext(ctx, createUser,
-		arg.ID,
-		arg.CreatedAt,
-		arg.UpdatedAt,
-		arg.Name,
-		arg.ApiKey,
-	)
+	_, err := q.db.ExecContext(ctx, createUser, arg.Username, arg.Email, arg.PasswordHash)
 	return err
 }
 
-const getUser = `-- name: GetUser :one
-
-SELECT id, created_at, updated_at, name, api_key FROM users WHERE api_key = $1
+const fetchUserByUsername = `-- name: FetchUserByUsername :one
+SELECT id, username, email, password_hash
+FROM users
+WHERE username = $1
 `
 
-func (q *Queries) GetUser(ctx context.Context, apiKey string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, apiKey)
-	var i User
+type FetchUserByUsernameRow struct {
+	ID           string
+	Username     string
+	Email        string
+	PasswordHash string
+}
+
+func (q *Queries) FetchUserByUsername(ctx context.Context, username string) (FetchUserByUsernameRow, error) {
+	row := q.db.QueryRowContext(ctx, fetchUserByUsername, username)
+	var i FetchUserByUsernameRow
 	err := row.Scan(
 		&i.ID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.Name,
-		&i.ApiKey,
+		&i.Username,
+		&i.Email,
+		&i.PasswordHash,
 	)
 	return i, err
+}
+
+const listUsers = `-- name: ListUsers :many
+SELECT id, username, email
+FROM users
+`
+
+type ListUsersRow struct {
+	ID       string
+	Username string
+	Email    string
+}
+
+func (q *Queries) ListUsers(ctx context.Context) ([]ListUsersRow, error) {
+	rows, err := q.db.QueryContext(ctx, listUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListUsersRow
+	for rows.Next() {
+		var i ListUsersRow
+		if err := rows.Scan(&i.ID, &i.Username, &i.Email); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateUserDetails = `-- name: UpdateUserDetails :exec
+
+UPDATE users
+SET email = $1, password_hash = $2
+WHERE username = $3
+`
+
+type UpdateUserDetailsParams struct {
+	Email        string
+	PasswordHash string
+	Username     string
+}
+
+func (q *Queries) UpdateUserDetails(ctx context.Context, arg UpdateUserDetailsParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserDetails, arg.Email, arg.PasswordHash, arg.Username)
+	return err
 }

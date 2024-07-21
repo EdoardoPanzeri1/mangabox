@@ -13,13 +13,13 @@ import (
 
 type Manga struct {
 	ID              string
+	Status          interface{}
+	UserID          sql.NullInt32
 	Title           string
 	IssueNumber     int32
 	PublicationDate time.Time
 	Storyline       sql.NullString
 	CoverArtUrl     sql.NullString
-	Read            sql.NullBool
-	UserID          sql.NullString
 	UpdatedAt       sql.NullTime
 	Images          pqtype.NullRawMessage
 	Authors         pqtype.NullRawMessage
@@ -41,17 +41,10 @@ type Manga struct {
 }
 
 type User struct {
-	ID        string
-	CreatedAt sql.NullTime
-	UpdatedAt sql.NullTime
-	Name      string
-	ApiKey    string
-}
-
-type UserManga struct {
-	ID        int32
-	UserID    sql.NullString
-	MangaID   sql.NullString
-	Favorite  sql.NullBool
-	CreatedAt sql.NullTime
+	ID           string
+	CreatedAt    sql.NullTime
+	UpdatedAt    sql.NullTime
+	Username     string
+	Email        string
+	PasswordHash string
 }

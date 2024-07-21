@@ -8,91 +8,114 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
+
+	"github.com/sqlc-dev/pqtype"
 )
 
-const getMangaById = `-- name: GetMangaById :one
-SELECT id, title, issue_number, publication_date, storyline, cover_art_url, read, user_id, updated_at, images, authors, serializations, genres, explicit_genres, themes, demographics, score, scored_by, rank, popularity, members, favorites, synopsis, background, relations, external_links FROM mangas WHERE id = $1
+const insertMangaIntoCatalog = `-- name: InsertMangaIntoCatalog :exec
+INSERT INTO mangas (
+    id, status, user_id, title, issue_number,
+    publication_date, storyline, cover_art_url, updated_at,
+    images, authors, serializations, genres, explicit_genres,
+    themes, demographics, score, scored_by, rank,
+    popularity, members, favorites, synopsis, background,
+    relations, external_links
+)
+VALUES (
+    $1, $2, $3, $4, $5,
+    $6, $7, $8, $9,
+    $10, $11, $12, $13, $14,
+    $15, $16, $17, $18, $19,
+    $20, $21, $22, $23, $24,
+    $25, $26
+)
 `
 
-func (q *Queries) GetMangaById(ctx context.Context, id string) (Manga, error) {
-	row := q.db.QueryRowContext(ctx, getMangaById, id)
-	var i Manga
-	err := row.Scan(
-		&i.ID,
-		&i.Title,
-		&i.IssueNumber,
-		&i.PublicationDate,
-		&i.Storyline,
-		&i.CoverArtUrl,
-		&i.Read,
-		&i.UserID,
-		&i.UpdatedAt,
-		&i.Images,
-		&i.Authors,
-		&i.Serializations,
-		&i.Genres,
-		&i.ExplicitGenres,
-		&i.Themes,
-		&i.Demographics,
-		&i.Score,
-		&i.ScoredBy,
-		&i.Rank,
-		&i.Popularity,
-		&i.Members,
-		&i.Favorites,
-		&i.Synopsis,
-		&i.Background,
-		&i.Relations,
-		&i.ExternalLinks,
-	)
-	return i, err
+type InsertMangaIntoCatalogParams struct {
+	ID              string
+	Status          interface{}
+	UserID          sql.NullInt32
+	Title           string
+	IssueNumber     int32
+	PublicationDate time.Time
+	Storyline       sql.NullString
+	CoverArtUrl     sql.NullString
+	UpdatedAt       sql.NullTime
+	Images          pqtype.NullRawMessage
+	Authors         pqtype.NullRawMessage
+	Serializations  pqtype.NullRawMessage
+	Genres          pqtype.NullRawMessage
+	ExplicitGenres  pqtype.NullRawMessage
+	Themes          pqtype.NullRawMessage
+	Demographics    pqtype.NullRawMessage
+	Score           sql.NullFloat64
+	ScoredBy        sql.NullInt32
+	Rank            sql.NullInt32
+	Popularity      sql.NullInt32
+	Members         sql.NullInt32
+	Favorites       sql.NullInt32
+	Synopsis        sql.NullString
+	Background      sql.NullString
+	Relations       pqtype.NullRawMessage
+	ExternalLinks   pqtype.NullRawMessage
 }
 
-const getUserFavorites = `-- name: GetUserFavorites :many
+func (q *Queries) InsertMangaIntoCatalog(ctx context.Context, arg InsertMangaIntoCatalogParams) error {
+	_, err := q.db.ExecContext(ctx, insertMangaIntoCatalog,
+		arg.ID,
+		arg.Status,
+		arg.UserID,
+		arg.Title,
+		arg.IssueNumber,
+		arg.PublicationDate,
+		arg.Storyline,
+		arg.CoverArtUrl,
+		arg.UpdatedAt,
+		arg.Images,
+		arg.Authors,
+		arg.Serializations,
+		arg.Genres,
+		arg.ExplicitGenres,
+		arg.Themes,
+		arg.Demographics,
+		arg.Score,
+		arg.ScoredBy,
+		arg.Rank,
+		arg.Popularity,
+		arg.Members,
+		arg.Favorites,
+		arg.Synopsis,
+		arg.Background,
+		arg.Relations,
+		arg.ExternalLinks,
+	)
+	return err
+}
 
-SELECT mangas.id, mangas.title, mangas.issue_number, mangas.publication_date, mangas.storyline, mangas.cover_art_url, mangas.read, mangas.user_id, mangas.updated_at, mangas.images, mangas.authors, mangas.serializations, mangas.genres, mangas.explicit_genres, mangas.themes, mangas.demographics, mangas.score, mangas.scored_by, mangas.rank, mangas.popularity, mangas.members, mangas.favorites, mangas.synopsis, mangas.background, mangas.relations, mangas.external_links
-FROM mangas
-JOIN user_mangas ON mangas.id = user_mangas.manga_id
-WHERE user_mangas.user_id = $1
+const retrieveCatalog = `-- name: RetrieveCatalog :many
+SELECT m.title, m.authors, m.status
+FROM mangas m
+JOIN users u ON m.user_id = u.id
+WHERE u.username = $1
 `
 
-func (q *Queries) GetUserFavorites(ctx context.Context, userID sql.NullString) ([]Manga, error) {
-	rows, err := q.db.QueryContext(ctx, getUserFavorites, userID)
+type RetrieveCatalogRow struct {
+	Title   string
+	Authors pqtype.NullRawMessage
+	Status  interface{}
+}
+
+func (q *Queries) RetrieveCatalog(ctx context.Context, username string) ([]RetrieveCatalogRow, error) {
+	rows, err := q.db.QueryContext(ctx, retrieveCatalog, username)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Manga
+	var items []RetrieveCatalogRow
 	for rows.Next() {
-		var i Manga
-		if err := rows.Scan(
-			&i.ID,
-			&i.Title,
-			&i.IssueNumber,
-			&i.PublicationDate,
-			&i.Storyline,
-			&i.CoverArtUrl,
-			&i.Read,
-			&i.UserID,
-			&i.UpdatedAt,
-			&i.Images,
-			&i.Authors,
-			&i.Serializations,
-			&i.Genres,
-			&i.ExplicitGenres,
-			&i.Themes,
-			&i.Demographics,
-			&i.Score,
-			&i.ScoredBy,
-			&i.Rank,
-			&i.Popularity,
-			&i.Members,
-			&i.Favorites,
-			&i.Synopsis,
-			&i.Background,
-			&i.Relations,
-			&i.ExternalLinks,
-		); err != nil {
+		var i RetrieveCatalogRow
+		if err := rows.Scan(&i.Title, &i.Authors, &i.Status); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -107,18 +130,17 @@ func (q *Queries) GetUserFavorites(ctx context.Context, userID sql.NullString) (
 }
 
 const updateStatusRead = `-- name: UpdateStatusRead :exec
-
-UPDATE mangas SET read = $1, updated_at = $2
-WHERE id = $3
+UPDATE mangas 
+SET status = 'read'
+WHERE id = $1 AND user_id = $2
 `
 
 type UpdateStatusReadParams struct {
-	Read      sql.NullBool
-	UpdatedAt sql.NullTime
-	ID        string
+	ID     string
+	UserID sql.NullInt32
 }
 
 func (q *Queries) UpdateStatusRead(ctx context.Context, arg UpdateStatusReadParams) error {
-	_, err := q.db.ExecContext(ctx, updateStatusRead, arg.Read, arg.UpdatedAt, arg.ID)
+	_, err := q.db.ExecContext(ctx, updateStatusRead, arg.ID, arg.UserID)
 	return err
 }
