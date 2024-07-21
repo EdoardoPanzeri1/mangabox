@@ -56,7 +56,6 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Register handler functions
-	mux.HandleFunc("GET /mangaDB", apiCfg.handlerGetMangaDB)
 	mux.HandleFunc("GET /search/manga", apiCfg.handlerSearchManga)
 	mux.HandleFunc("GET /manga", apiCfg.handlerGetManga)
 
