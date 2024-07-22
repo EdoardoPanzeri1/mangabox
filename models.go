@@ -145,3 +145,8 @@ type MangaRequest struct {
 	Relations       json.RawMessage `json:"relations"`
 	ExternalLinks   json.RawMessage `json:"external_links"`
 }
+
+type UpdateStatusRequest struct {
+	UserID int32  `json:"user_id"`
+	Status string `json:"status"`
+}

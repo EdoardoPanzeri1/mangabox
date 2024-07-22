@@ -115,3 +115,41 @@ func (cfg *apiConfig) handlerAddToCatalog(w http.ResponseWriter, r *http.Request
 
 	respondWithJSON(w, http.StatusCreated, map[string]string{"message": "Manga added to catalog"})
 }
+
+func (cfg *apiConfig) handlerStatusManga(w http.ResponseWriter, r *http.Request) {
+	// Exctract the manga ID from the URL
+	mangaID := r.URL.Query().Get("id")
+	if mangaID == "" {
+		respondWithError(w, http.StatusBadRequest, "manga ID is required")
+		return
+	}
+
+	// Decode the incoming JSON request into the UpdateStatusRequest struct
+	var req UpdateStatusRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	// Ensure that the status provided is valid
+	if req.Status != "read" {
+		respondWithError(w, http.StatusBadRequest, "Invalid status value; only 'read' is allowed")
+		return
+	}
+
+	ctx := r.Context()
+
+	// Create parameters for the update query
+	params := database.UpdateStatusReadParams{
+		ID:     mangaID,
+		UserID: sql.NullInt32{Int32: req.UserID, Valid: true},
+	}
+
+	// Call the UpdateStatusRead method with the constructed parameters
+	if err := cfg.DB.UpdateStatusRead(ctx, params); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Failed to update manga status")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, map[string]string{"message": "Manga status updated to 'read'"})
+}
