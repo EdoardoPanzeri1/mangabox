@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/EdoardoPanzeri1/mangabox/internal/database"
@@ -152,4 +153,50 @@ func (cfg *apiConfig) handlerStatusManga(w http.ResponseWriter, r *http.Request)
 	}
 
 	respondWithJSON(w, http.StatusOK, map[string]string{"message": "Manga status updated to 'read'"})
+}
+
+func (cfg *apiConfig) handlerDeleteManga(w http.ResponseWriter, r *http.Request) {
+	// Exctract the manga ID from the URL query parameters
+	mangaID := r.URL.Query().Get("id")
+	if mangaID == "" {
+		respondWithError(w, http.StatusBadRequest, "manga ID is required")
+		return
+	}
+
+	// Extract user ID from query parameters
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
+		respondWithError(w, http.StatusBadRequest, "user id is required")
+		return
+	}
+
+	userIDInt32, err := parseStringToInt32(userID)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "invalid user ID")
+		return
+	}
+
+	ctx := r.Context()
+
+	// Create parameters for the delete query
+	params := database.DeleteMangaParams{
+		ID:     mangaID,
+		UserID: sql.NullInt32{Int32: userIDInt32, Valid: true},
+	}
+
+	// Call the deleteManga method with the constructed params
+	if err := cfg.DB.DeleteManga(ctx, params); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Failed to delete manga from the catalog")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, map[string]string{"message": "Manga deleted from the catalog"})
+}
+
+func parseStringToInt32(s string) (int32, error) {
+	value, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, err
+	}
+	return int32(value), nil
 }

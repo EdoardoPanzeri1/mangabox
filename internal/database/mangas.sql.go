@@ -13,6 +13,21 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
+const deleteManga = `-- name: DeleteManga :exec
+DELETE FROM mangas
+WHERE id = $1 AND user_id = $2
+`
+
+type DeleteMangaParams struct {
+	ID     string
+	UserID sql.NullInt32
+}
+
+func (q *Queries) DeleteManga(ctx context.Context, arg DeleteMangaParams) error {
+	_, err := q.db.ExecContext(ctx, deleteManga, arg.ID, arg.UserID)
+	return err
+}
+
 const insertMangaIntoCatalog = `-- name: InsertMangaIntoCatalog :exec
 INSERT INTO mangas (
     id, status, user_id, title, issue_number,

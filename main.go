@@ -63,7 +63,7 @@ func main() {
 	mux.HandleFunc("GET /mangas", apiCfg.handlerRetrieveCatalog)
 	mux.HandleFunc("POST /mangas", apiCfg.handlerAddToCatalog)
 	mux.HandleFunc("PUT /mangas/{id}", apiCfg.handlerStatusManga)
-	//mux.HandleFunc("DELETE /mangas/{id}", apiCfg.handlerDeleteManga)
+	mux.HandleFunc("DELETE /mangas/{id}", apiCfg.handlerDeleteManga)
 
 	// User Authentication and Profile Management
 	// mux.HandleFunc("POST /register", apiCfg.handlerRegistration)
