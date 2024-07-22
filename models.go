@@ -1,6 +1,10 @@
 package main
 
-import "database/sql"
+import (
+	"database/sql"
+	"encoding/json"
+	"time"
+)
 
 // Config holds the database and Jikan configurations
 type Config struct {
@@ -104,4 +108,40 @@ type TManga struct {
 	Title    string `json:"title"`
 	Author   string `json:"author"`
 	ImageURL string `json:"image_url"`
+}
+
+type RetrieveManga struct {
+	Title       string   `json:"title"`
+	Authors     []string `json:"authors"`
+	Status      string   `json:"status"`
+	CoverArtUrl string   `json:"cover_art_url"`
+	IssueNumber int      `json:"issue_number"`
+}
+
+type MangaRequest struct {
+	ID              string          `json:"id"`
+	Status          interface{}     `json:"status"`
+	UserID          int32           `json:"user_id"`
+	Title           string          `json:"title"`
+	IssueNumber     int32           `json:"issue_number"`
+	PublicationDate time.Time       `json:"publication_date"`
+	Storyline       string          `json:"storyline"`
+	CoverArtUrl     string          `json:"cover_art_url"`
+	Images          json.RawMessage `json:"images"`
+	Authors         json.RawMessage `json:"authors"`
+	Serializations  json.RawMessage `json:"serializations"`
+	Genres          json.RawMessage `json:"genres"`
+	ExplicitGenres  json.RawMessage `json:"explicit_genres"`
+	Themes          json.RawMessage `json:"themes"`
+	Demographics    json.RawMessage `json:"demographics"`
+	Score           float64         `json:"score"`
+	ScoredBy        int32           `json:"scored_by"`
+	Rank            int32           `json:"rank"`
+	Popularity      int32           `json:"popularity"`
+	Members         int32           `json:"members"`
+	Favorites       int32           `json:"favorites"`
+	Synopsis        string          `json:"synopsis"`
+	Background      string          `json:"background"`
+	Relations       json.RawMessage `json:"relations"`
+	ExternalLinks   json.RawMessage `json:"external_links"`
 }

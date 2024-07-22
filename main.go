@@ -60,8 +60,8 @@ func main() {
 	mux.HandleFunc("GET /details", apiCfg.handlerGetManga)
 
 	// Manga Catalog Endpoints
-	//mux.HandleFunc("GET /mangas", apiCfg.handlerRetrieveCatalog)
-	//mux.HandleFunc("POST /mangas", apiCfg.handlerAddToCatalog)
+	mux.HandleFunc("GET /mangas", apiCfg.handlerRetrieveCatalog)
+	mux.HandleFunc("POST /mangas", apiCfg.handlerAddToCatalog)
 	//mux.HandleFunc("PUT /mangas/{id}", apiCfg.handlerStatusManga)
 	//mux.HandleFunc("DELETE /mangas/{id}", apiCfg.handlerDeleteManga)
 

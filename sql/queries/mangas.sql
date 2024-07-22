@@ -22,7 +22,7 @@ VALUES (
 );
 
 -- name: RetrieveCatalog :many
-SELECT m.title, m.authors, m.status
+SELECT m.title, m.authors, m.status, m.cover_art_url, m.issue_number
 FROM mangas m
 JOIN users u ON m.user_id = u.id
 WHERE u.username = $1;
