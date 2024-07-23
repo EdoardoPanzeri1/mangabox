@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"time"
+
+	"github.com/golang-jwt/jwt"
 )
 
 // Config holds the database and Jikan configurations
@@ -149,4 +151,25 @@ type MangaRequest struct {
 type UpdateStatusRequest struct {
 	UserID int32  `json:"user_id"`
 	Status string `json:"status"`
+}
+
+// User models
+type UserRequest struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+}
+
+type Claims struct {
+	Username string `json:"username"`
+	jwt.StandardClaims
 }

@@ -66,8 +66,8 @@ func main() {
 	mux.HandleFunc("DELETE /mangas/{id}", apiCfg.handlerDeleteManga)
 
 	// User Authentication and Profile Management
-	// mux.HandleFunc("POST /register", apiCfg.handlerRegistration)
-	// mux.HandleFunc("POST /login", apiCfg.handlerLogin)
+	mux.HandleFunc("POST /register", apiCfg.handlerRegistration)
+	mux.HandleFunc("POST /login", apiCfg.handlerLogin)
 	//mux.HandleFunc("GET /profile", apiCfg.handlerProfileInformation)
 	//mux.HandleFunc("PUT /profile", apiCfg.handlerUpdateInformation)
 
