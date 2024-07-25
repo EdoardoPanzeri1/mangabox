@@ -68,8 +68,8 @@ func main() {
 	// User Authentication and Profile Management
 	mux.HandleFunc("POST /register", apiCfg.handlerRegistration)
 	mux.HandleFunc("POST /login", apiCfg.handlerLogin)
-	//mux.HandleFunc("GET /profile", apiCfg.handlerProfileInformation)
-	//mux.HandleFunc("PUT /profile", apiCfg.handlerUpdateInformation)
+	mux.HandleFunc("GET /profile", apiCfg.handlerProfileInformation)
+	mux.HandleFunc("PUT /profile", apiCfg.handlerUpdateInformation)
 
 	mux.HandleFunc("/v1/healthz", handlerReadiness)
 	mux.HandleFunc("/v1/err", handlerErr)

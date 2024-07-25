@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/EdoardoPanzeri1/mangabox/internal/database"
@@ -128,4 +130,114 @@ func checkRequest(w http.ResponseWriter, r *http.Request) bool {
 	}
 
 	return true
+}
+
+func (cfg *apiConfig) handlerProfileInformation(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		respondWithError(w, http.StatusMethodNotAllowed, "Method not allowed")
+		return
+	}
+
+	claims, err := parseToken(r)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	// Fetch the user's profile from the databse using the username
+	user, err := cfg.DB.FetchUserByUsername(r.Context(), claims.Username)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Failed to fetch user profile")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, user)
+}
+
+// Helper function to parse and verify the JWT token
+func parseToken(r *http.Request) (*Claims, error) {
+	header := r.Header.Get("Authorization")
+	if header == "" {
+		return nil, errors.New("missing authorization header")
+	}
+
+	if !strings.HasPrefix(header, "Bearer ") {
+		return nil, errors.New("invalid authorization header format")
+	}
+
+	tokenString := strings.TrimPrefix(header, "Bearer ")
+
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
+	})
+
+	if err != nil || !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+
+	return claims, nil
+}
+
+func (cfg *apiConfig) handlerUpdateInformation(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		respondWithError(w, http.StatusMethodNotAllowed, "Method not allowed")
+		return
+	}
+
+	claims, err := parseToken(r)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	// Decode the incomin JSON request
+	var req UpdateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	// Validate the request data
+	if req.Email == "" {
+		respondWithError(w, http.StatusBadRequest, "Email is required")
+		return
+	}
+
+	var hashedPassword string
+
+	// Hash the new password provided
+	if req.Password == "" {
+		hashedPasswordBytes, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Failed to hash password")
+			return
+		}
+		hashedPassword = string(hashedPasswordBytes)
+	} else {
+		// If no new password is given, fetch the existing password hash to retain it
+		if req.Password == "" {
+			user, err := cfg.DB.FetchUserByUsername(r.Context(), claims.Username)
+			if err != nil {
+				respondWithError(w, http.StatusInternalServerError, "Failed to fetch user profile")
+				return
+			}
+			hashedPassword = user.PasswordHash
+		}
+	}
+
+	// Prepare the database parameters
+	params := database.UpdateUserDetailsParams{
+		Email:        req.Email,
+		PasswordHash: hashedPassword,
+		Username:     claims.Username,
+	}
+
+	// Update the user's profile in the database
+	if err := cfg.DB.UpdateUserDetails(r.Context(), params); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Failed to update user profile")
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, map[string]string{"message": "Profile updated successfully"})
 }

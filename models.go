@@ -173,3 +173,8 @@ type Claims struct {
 	Username string `json:"username"`
 	jwt.StandardClaims
 }
+
+type UpdateRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
