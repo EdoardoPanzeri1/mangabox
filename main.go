@@ -30,7 +30,7 @@ func main() {
 
 	baseURL := os.Getenv("JIKAN_BASE_URL")
 	if baseURL == "" {
-		log.Fatal("COMICWINE_BASE_URL environment is not set")
+		log.Fatal("JIKAN_BASE_URL environment is not set")
 	}
 
 	dbUrl := os.Getenv("DATABASE_URL")
@@ -52,6 +52,7 @@ func main() {
 		DB:      dbQueries,
 		BaseURL: baseURL,
 	}
+	defer db.Close() // Ensure databse connection is closed when application shuts down
 
 	mux := http.NewServeMux()
 
