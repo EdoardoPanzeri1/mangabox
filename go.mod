@@ -9,3 +9,8 @@ require (
 	github.com/sqlc-dev/pqtype v0.3.0
 	golang.org/x/crypto v0.25.0
 )
+
+require (
+	github.com/gorilla/mux v1.8.1 // indirect
+	github.com/rs/cors v1.11.0 // indirect
+)

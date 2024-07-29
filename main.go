@@ -8,8 +8,10 @@ import (
 	"time"
 
 	"github.com/EdoardoPanzeri1/mangabox/internal/database"
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/rs/cors"
 )
 
 type apiConfig struct {
@@ -54,31 +56,40 @@ func main() {
 	}
 	defer db.Close() // Ensure databse connection is closed when application shuts down
 
-	mux := http.NewServeMux()
+	router := mux.NewRouter()
 
 	// External Manga Search Endpoints
-	mux.HandleFunc("GET /search", apiCfg.handlerSearchManga)
-	mux.HandleFunc("GET /details", apiCfg.handlerGetManga)
+	router.HandleFunc("GET /search", apiCfg.handlerSearchManga)
+	router.HandleFunc("GET /details", apiCfg.handlerGetManga)
 
 	// Manga Catalog Endpoints
-	mux.HandleFunc("GET /mangas", apiCfg.handlerRetrieveCatalog)
-	mux.HandleFunc("POST /mangas", apiCfg.handlerAddToCatalog)
-	mux.HandleFunc("PUT /mangas/{id}", apiCfg.handlerStatusManga)
-	mux.HandleFunc("DELETE /mangas/{id}", apiCfg.handlerDeleteManga)
+	router.HandleFunc("GET /mangas", apiCfg.handlerRetrieveCatalog)
+	router.HandleFunc("POST /mangas", apiCfg.handlerAddToCatalog)
+	router.HandleFunc("PUT /mangas/{id}", apiCfg.handlerStatusManga)
+	router.HandleFunc("DELETE /mangas/{id}", apiCfg.handlerDeleteManga)
 
 	// User Authentication and Profile Management
-	mux.HandleFunc("POST /register", apiCfg.handlerRegistration)
-	mux.HandleFunc("POST /login", apiCfg.handlerLogin)
-	mux.HandleFunc("GET /profile", apiCfg.handlerProfileInformation)
-	mux.HandleFunc("PUT /profile", apiCfg.handlerUpdateInformation)
+	router.HandleFunc("POST /register", apiCfg.handlerRegistration)
+	router.HandleFunc("POST /login", apiCfg.handlerLogin)
+	router.HandleFunc("GET /profile", apiCfg.handlerProfileInformation)
+	router.HandleFunc("PUT /profile", apiCfg.handlerUpdateInformation)
 
-	mux.HandleFunc("/v1/healthz", handlerReadiness)
-	mux.HandleFunc("/v1/err", handlerErr)
+	router.HandleFunc("/v1/healthz", handlerReadiness)
+	router.HandleFunc("/v1/err", handlerErr)
+
+	// Setup CORS to allow requests from the React app
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http.//localhost:3000"}, // React's dev server
+		AllowCredentials: true,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+	})
+
+	handler := c.Handler(router)
 
 	// Set up HTTP server
 	srv := &http.Server{
 		Addr:              ":" + port,
-		Handler:           mux,
+		Handler:           handler,
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 

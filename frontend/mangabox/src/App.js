@@ -1,23 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
 
 function App() {
+  const [mangas, setMangas] = useState([]);
+
+  useEffect(() => {
+    // Fetch manga data from the backend
+    fetch('http://localhost:8080/mangas')
+      .then(response => response.json())
+      .then(data => setMangas(data))
+      .catch(error => console.error('Error fetching data:', error));
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Manga List</h1>
+      <ul>
+        {mangas.map(manga => (
+          <li key={manga.id}>{manga.title}</li>
+        ))}
+      </ul>
     </div>
   );
 }
