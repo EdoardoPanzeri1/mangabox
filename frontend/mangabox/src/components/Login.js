@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -25,6 +25,7 @@ const Login = () => {
   };
 
   return (
+    <div style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '20px' }}>
     <form onSubmit={handleSubmit}>
       <h2>Login</h2>
       <input
@@ -41,6 +42,8 @@ const Login = () => {
       />
       <button type="submit">Login</button>
     </form>
+    <p>Don't have an account? <Link to="/register" style={{ color: 'white' }}>Register here</Link></p>
+    </div>
   );
 };
 

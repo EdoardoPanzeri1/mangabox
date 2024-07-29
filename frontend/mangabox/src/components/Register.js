@@ -16,7 +16,8 @@ const Register = () => {
         email,
         password,
       });
-      if (response.status === 200) {
+      if (response.status === 201) {
+        // Registration successful, redirect to login
         navigate('/login');
       }
     } catch (error) {
@@ -25,6 +26,7 @@ const Register = () => {
   };
 
   return (
+    <div style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '20px' }}>
     <form onSubmit={handleSubmit}>
       <h2>Register</h2>
       <input
@@ -47,6 +49,7 @@ const Register = () => {
         />
         <button type="submit">Register</button>
       </form>
+    </div>
     );
   };
   

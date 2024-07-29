@@ -3,59 +3,66 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
-  const [user, setUser] = useState({});
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        console.log("Attempting to fetch profile")
-        const token = localStorage.getItem('token');
-        if (!token) {
-          throw new Error("No token found");
-        }
+    const [user, setUser] = useState({});
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [isEditing, setIsEditing] = useState(false);
+    const navigate = useNavigate();
 
-        const response = await axios.get('http://localhost:8080/profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    throw new Error("No token found");
+                }
 
-        setUser(response.data);
-        setEmail(response.data.email);
-        console.log("Profile fetched successfully", response.data)
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          console.log('Profile not found, redirecting to create profile');
-          navigate('/create-profile');
-        } else if (error.response && error.response.status === 401) {
-          console.error('Authentication error, redirecting to login');
-          navigate('/login');
-        } else {
-        console.error('There was an error fetching the profile!', error);
-        }
-      }
-    };
-    
-    fetchProfile();
-  }, [navigate]);
+                const response = await axios.get('http://localhost:8080/profile', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
 
+                const profileData = response.data;
+
+                // Set user object and update fields conditionally to handle different casing
+                setUser(profileData);
+                setEmail(profileData.email || profileData.Email || '');
+                console.log("Profile fetched successfully", response.data);
+            } catch (error) {
+                if (error.response?.status === 404) {
+                    navigate('/create-profile');
+                } else if (error.response?.status === 401) {
+                    navigate('/login');
+                } else {
+                    console.error('There was an error fetching the profile!', error);
+                }
+            }
+        };
+
+        fetchProfile();
+    }, [navigate]);
   const handleUpdate = async (e) => {
     e.preventDefault();
 
     try {
       const token = localStorage.getItem('token');
+      const updateData = { email };
+      if (password) {
+        updateData.password = password;
+      }
+
       const response = await axios.put(
         'http://localhost:8080/profile',
-        { email, password },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        updateData,
+        { 
+          headers: { Authorization: `Bearer ${token}`}
+         }
       );
       
       if (response.status === 200) {
-        setUser(response.data);
+        const updateProfile = response.data;
+        setUser(updateProfile);
+        setEmail(updateProfile.email || updateProfile.Email);
+        setPassword('');
         setIsEditing(false);
       }
     } catch (error) {
@@ -64,12 +71,12 @@ const Profile = () => {
   };
 
   return (
-    <div>
+    <div style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '20px' }}>
       <h2>Profile</h2>
       {!isEditing ? (
         <div>
-          <p>Username: {user.username}</p>
-          <p>Email: {user.email}</p>
+          <p>Username: {user.Username}</p>
+          <p>Email: {user.Email}</p>
           <button onClick={() => setIsEditing(true)}>Edit Profile</button>
         </div>
       ) : (

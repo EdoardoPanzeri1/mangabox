@@ -7,11 +7,15 @@ import Profile from './components/Profile';
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/profile" element={<Profile />} />
-      </Routes>
+      <div>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
+          {/* Add a default route that redirects to /login */}
+          <Route path="*" element={<Login />} />
+        </Routes>
+      </div>
     </Router>
   )
 }
