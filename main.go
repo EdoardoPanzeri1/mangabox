@@ -79,9 +79,10 @@ func main() {
 
 	// Setup CORS to allow requests from the React app
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http.//localhost:3000"}, // React's dev server
+		AllowedOrigins:   []string{"http://localhost:3000"}, // React's dev server
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 	})
 
 	handler := c.Handler(router)
@@ -90,7 +91,8 @@ func main() {
 	srv := &http.Server{
 		Addr:              ":" + port,
 		Handler:           handler,
-		ReadHeaderTimeout: 10 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		ReadHeaderTimeout: 15 * time.Second,
 	}
 
 	// Start the server
