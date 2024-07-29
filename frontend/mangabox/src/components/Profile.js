@@ -12,15 +12,29 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        console.log("Attempting to fetch profile")
         const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error("No token found");
+        }
+
         const response = await axios.get('http://localhost:8080/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         setUser(response.data);
         setEmail(response.data.email);
+        console.log("Profile fetched successfully", response.data)
       } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.log('Profile not found, redirecting to create profile');
+          navigate('/create-profile');
+        } else if (error.response && error.response.status === 401) {
+          console.error('Authentication error, redirecting to login');
+          navigate('/login');
+        } else {
         console.error('There was an error fetching the profile!', error);
-        navigate('/login');
+        }
       }
     };
     

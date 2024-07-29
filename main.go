@@ -54,25 +54,25 @@ func main() {
 		DB:      dbQueries,
 		BaseURL: baseURL,
 	}
-	defer db.Close() // Ensure databse connection is closed when application shuts down
+	defer db.Close() // Ensure database connection is closed when application shuts down
 
 	router := mux.NewRouter()
 
 	// External Manga Search Endpoints
-	router.HandleFunc("GET /search", apiCfg.handlerSearchManga)
-	router.HandleFunc("GET /details", apiCfg.handlerGetManga)
+	router.HandleFunc("/search", apiCfg.handlerSearchManga).Methods("GET")
+	router.HandleFunc("/details", apiCfg.handlerGetManga).Methods("GET")
 
 	// Manga Catalog Endpoints
-	router.HandleFunc("GET /mangas", apiCfg.handlerRetrieveCatalog)
-	router.HandleFunc("POST /mangas", apiCfg.handlerAddToCatalog)
-	router.HandleFunc("PUT /mangas/{id}", apiCfg.handlerStatusManga)
-	router.HandleFunc("DELETE /mangas/{id}", apiCfg.handlerDeleteManga)
+	router.HandleFunc("/mangas", apiCfg.handlerRetrieveCatalog).Methods("GET")
+	router.HandleFunc("/mangas", apiCfg.handlerAddToCatalog).Methods("POST")
+	router.HandleFunc("/mangas/{id}", apiCfg.handlerStatusManga).Methods("PUT")
+	router.HandleFunc("/mangas/{id}", apiCfg.handlerDeleteManga).Methods("DELETE")
 
 	// User Authentication and Profile Management
-	router.HandleFunc("POST /register", apiCfg.handlerRegistration)
-	router.HandleFunc("POST /login", apiCfg.handlerLogin)
-	router.HandleFunc("GET /profile", apiCfg.handlerProfileInformation)
-	router.HandleFunc("PUT /profile", apiCfg.handlerUpdateInformation)
+	router.HandleFunc("/register", apiCfg.handlerRegistration).Methods("POST")
+	router.HandleFunc("/login", apiCfg.handlerLogin).Methods("POST")
+	router.HandleFunc("/profile", apiCfg.handlerProfileInformation).Methods("GET")
+	router.HandleFunc("/profile", apiCfg.handlerUpdateInformation).Methods("PUT")
 
 	router.HandleFunc("/v1/healthz", handlerReadiness)
 	router.HandleFunc("/v1/err", handlerErr)

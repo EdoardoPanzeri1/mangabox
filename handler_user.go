@@ -11,6 +11,7 @@ import (
 
 	"github.com/EdoardoPanzeri1/mangabox/internal/database"
 	"github.com/golang-jwt/jwt"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -49,7 +50,15 @@ func (cfg *apiConfig) handlerRegistration(w http.ResponseWriter, r *http.Request
 
 	// Insert the new user into the database
 	if err := cfg.DB.CreateUser(r.Context(), params); err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Failed to create user")
+		// Enhanced error logging to capture specific database error
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			log.Printf("Failed to create user: %v (Postgres Error: %s)", err, pgErr.Message)
+			respondWithError(w, http.StatusInternalServerError, "Failed to create user due to database error")
+		} else {
+			log.Printf("Failed to create user: %v", err)
+			respondWithError(w, http.StatusInternalServerError, "Failed to create user")
+		}
 		return
 	}
 
