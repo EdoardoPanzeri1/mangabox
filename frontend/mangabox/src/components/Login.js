@@ -17,7 +17,7 @@ const Login = () => {
       if (response.status === 200) {
         localStorage.setItem('token', response.data.token); // Save the token
         console.log("Token stored", response.data.token) // Log the token
-        navigate('/profile');
+        navigate('/search');
       }
     } catch (error) {
       console.error('There was an error logging in!', error);
