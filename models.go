@@ -107,6 +107,7 @@ type APIResponse struct {
 }
 
 type TManga struct {
+	ID       int    `json:"id"`
 	Title    string `json:"title"`
 	Author   string `json:"author"`
 	ImageURL string `json:"image_url"`

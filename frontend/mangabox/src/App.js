@@ -4,6 +4,7 @@ import Register from './components/Register';
 import Login from './components/Login';
 import Profile from './components/Profile';
 import Search from './components/Search';
+import Details from './components/Details';
 
 function App() {
   return (
@@ -14,13 +15,13 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/search" element={<Search />} />
-          {/* Add a default route that redirects to /login */}
+          <Route path='/details' element={<Details />} />
+          {/* Default route */}
           <Route path="*" element={<Login />} />
         </Routes>
       </div>
     </Router>
-  )
+  );
 }
-
 
 export default App;

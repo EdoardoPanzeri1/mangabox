@@ -62,6 +62,13 @@ func transformResult(rawData []map[string]interface{}) []TManga {
 	var transformedResults []TManga
 
 	for _, item := range rawData {
+		// Get the ID
+		id, exists := item["mal_id"].(float64)
+		if !exists {
+			continue
+		}
+
+		// Get the title
 		title, exists := item["title"].(string)
 		if !exists {
 			continue
@@ -75,7 +82,7 @@ func transformResult(rawData []map[string]interface{}) []TManga {
 			}
 		}
 
-		// Might need to check a different field for image URL
+		// Get the image URL
 		imageURL, exists := item["images"].(map[string]interface{})
 		var imageLink string
 		if exists {
@@ -87,7 +94,9 @@ func transformResult(rawData []map[string]interface{}) []TManga {
 			imageLink = "default_image_url.jpg"
 		}
 
+		// Append to the results
 		transformedResults = append(transformedResults, TManga{
+			ID:       int(id), // Convert float64 to int
 			Title:    title,
 			Author:   authors,
 			ImageURL: imageLink,

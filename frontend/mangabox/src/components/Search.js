@@ -47,13 +47,13 @@ const Search = () => {
           <ul>
             {results.map((manga, index) => (
               <li key={index} style={{ marginBottom: '20px' }}>
-                <h3>{manga.title}</h3>
-                <p>{manga.author}</p>
-                {manga.image_url ? (
+                <Link to={`/details?id=${manga.mal_id}`} style={{ color: 'white', textDecoration: 'none' }}>
+                    <h3>{manga.title}</h3>
+                </Link>
+                <Link to={`/details?id=${manga.mal_id}`} style={{ textDecoration: 'none' }}>
                   <img src={manga.image_url} alt={manga.title} style={{ maxWidth: '100px' }} />
-                ) : (
-                  <p>No Image Available</p>
-                )}
+                </Link>
+                <p>{manga.author}</p>
               </li>
             ))}
           </ul>
