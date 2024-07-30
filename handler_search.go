@@ -67,20 +67,30 @@ func transformResult(rawData []map[string]interface{}) []TManga {
 			continue
 		}
 
-		author, exists := item["author"].(string)
-		if !exists {
-			author = "Unknown Author"
+		// Check the nested structure for authors
+		authors := "Unknown Author"
+		if authorData, exists := item["authors"].([]interface{}); exists && len(authorData) > 0 {
+			if auth, ok := authorData[0].(map[string]interface{}); ok {
+				authors, _ = auth["name"].(string)
+			}
 		}
 
-		imageURL, exists := item["image_url"].(string)
-		if !exists {
-			imageURL = "default_image_url.jpg"
+		// Might need to check a different field for image URL
+		imageURL, exists := item["images"].(map[string]interface{})
+		var imageLink string
+		if exists {
+			if jpg, ok := imageURL["jpg"].(map[string]interface{}); ok {
+				imageLink, _ = jpg["image_url"].(string)
+			}
+		}
+		if imageLink == "" {
+			imageLink = "default_image_url.jpg"
 		}
 
 		transformedResults = append(transformedResults, TManga{
 			Title:    title,
-			Author:   author,
-			ImageURL: imageURL,
+			Author:   authors,
+			ImageURL: imageLink,
 		})
 	}
 

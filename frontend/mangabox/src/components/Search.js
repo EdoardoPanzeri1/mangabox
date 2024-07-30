@@ -10,9 +10,11 @@ const Search = () => {
     e.preventDefault();
 
     try {
+      // Make request to go server  
       const response = await axios.get(`http://localhost:8080/search?q=${query}`);
 
       if (response.status === 200) {
+        console.log(response.data) // Log the response data for debugging
         setResults(response.data);
       }
     } catch (error) {
@@ -22,35 +24,43 @@ const Search = () => {
 
   return (
     <div style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '20px' }}>
-      <form onSubmit={handleSearch}>
-        <input
-          type="text"
-          placeholder="Search Manga"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          style={{ backgroundColor: 'black', color: 'white', border: '1px solid white' }}
-        />
-        <button type="submit">Search</button>
-      </form>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+        <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', marginRight: '20px' }}>
+          <input
+            type="text"
+            placeholder="Search Manga"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            style={{ backgroundColor: 'black', color: 'white', border: '1px solid white', marginRight: '10px' }}
+          />
+          <button type="submit">Search</button>
+        </form>
+        <nav>
+          <ul style={{ display: 'flex', listStyleType: 'none', padding: '0', margin: '0' }}>
+            <li><Link to="/mangas" style={{ color: 'white', textDecoration: 'none', marginRight: '10px' }}>My Mangas</Link></li>
+            <li><Link to="/profile" style={{ color: 'white', textDecoration: 'none' }}>Profile</Link></li>
+          </ul>
+        </nav>
+      </div>
       <div>
-        {results.length > 0 && (
+        {results.length > 0 ? (
           <ul>
             {results.map((manga, index) => (
-              <li key={index}>
-                <h3>{manga.Title}</h3>
-                <p>{manga.Author}</p>
-                <img src={manga.ImageURL} alt={manga.Title} style={{ maxWidth: '100px'}} />
+              <li key={index} style={{ marginBottom: '20px' }}>
+                <h3>{manga.title}</h3>
+                <p>{manga.author}</p>
+                {manga.image_url ? (
+                  <img src={manga.image_url} alt={manga.title} style={{ maxWidth: '100px' }} />
+                ) : (
+                  <p>No Image Available</p>
+                )}
               </li>
             ))}
           </ul>
+        ) : (
+          <p>No results found</p>
         )}
       </div>
-      <nav>
-        <ul>
-          <li><Link to="/mangas" style={{ color: 'white' }}>My Mangas</Link></li>
-          <li><Link to="/profile" style={{ color: 'white' }}>Profile</Link></li>
-        </ul>
-      </nav>
     </div>
   );
 };
