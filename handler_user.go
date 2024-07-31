@@ -124,7 +124,10 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, LoginResponse{Token: tokenString})
+	respondWithJSON(w, http.StatusOK, LoginResponse{
+		Token:  tokenString,
+		UserID: user.ID,
+	})
 }
 
 func checkRequest(w http.ResponseWriter, r *http.Request) bool {

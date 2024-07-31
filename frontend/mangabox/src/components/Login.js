@@ -16,7 +16,9 @@ const Login = () => {
       });
       if (response.status === 200) {
         localStorage.setItem('token', response.data.token); // Save the token
+        localStorage.setItem('user_id', response.data.user_id) // Save the user_id
         console.log("Token stored", response.data.token) // Log the token
+        console.log("User ID stored", response.data.user_id) // Log the user_id
         navigate('/search');
       }
     } catch (error) {
