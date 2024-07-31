@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -54,7 +53,6 @@ func fetchMangaDetailsFromAPI(mangaID int) (Manga, error) {
 	if err != nil {
 		return Manga{}, err
 	}
-	log.Printf("API response body: %s", body)
 
 	var mangaData struct {
 		Data Manga `json:"data"`
@@ -64,9 +62,6 @@ func fetchMangaDetailsFromAPI(mangaID int) (Manga, error) {
 	if err != nil {
 		return Manga{}, err
 	}
-
-	// Debug: Ensure data is correctly fetched
-	log.Printf("Fetched manga: %+v\n", mangaData.Data)
 
 	return mangaData.Data, nil
 }

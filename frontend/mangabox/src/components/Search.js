@@ -47,10 +47,10 @@ const Search = () => {
           <ul>
             {results.map((manga, index) => (
               <li key={index} style={{ marginBottom: '20px' }}>
-                <Link to={`/details?id=${manga.mal_id}`} style={{ color: 'white', textDecoration: 'none' }}>
+                <Link to={`/details?id=${manga.id}`} style={{ color: 'white', textDecoration: 'none' }}>
                     <h3>{manga.title}</h3>
                 </Link>
-                <Link to={`/details?id=${manga.mal_id}`} style={{ textDecoration: 'none' }}>
+                <Link to={`/details?id=${manga.id}`} style={{ textDecoration: 'none' }}>
                   <img src={manga.image_url} alt={manga.title} style={{ maxWidth: '100px' }} />
                 </Link>
                 <p>{manga.author}</p>
