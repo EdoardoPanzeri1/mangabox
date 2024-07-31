@@ -36,6 +36,14 @@ const Details = () => {
   }, [mangaId]);
 
   const addToDatabase = async () => {
+    const userID = localStorage.getItem('user_id'); // Get the user id from localstorage
+
+    if (!userID) {
+      console.error('User ID is not available in localStorage');
+      setMessage('You must be logged in to add manga to the catalog');
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:8080/mangas', {
         ID: mangaId, 
@@ -46,27 +54,27 @@ const Details = () => {
         Type: manga.type,
         Chapters: manga.chapters,
         Volumes: manga.volumes,
-        Status: 'bought', // Example status value, adjust as needed
-        UserID: 1, // Replace with the actual user ID, you might need to dynamically set this
+        Status: 'bought', 
+        UserID: userID,
         IssueNumber: manga.issue_number || 0,
         PublicationDate: manga.publication_date || new Date().toISOString(),
-        Storyline: 'some storyline', // Example storyline, adjust as needed
+        Storyline: manga.storyline,
         UpdatedAt: new Date().toISOString(),
         Images: JSON.stringify(manga.images),
-        Serializations: JSON.stringify([]), // Adjust as needed
-        Genres: JSON.stringify([]), // Adjust as needed
-        ExplicitGenres: JSON.stringify([]), // Adjust as needed
-        Themes: JSON.stringify([]), // Adjust as needed
-        Demographics: JSON.stringify([]), // Adjust as needed
-        Score: 0, // Example score value, adjust as needed
-        ScoredBy: 0, // Example scored_by value, adjust as needed
-        Rank: 0, // Example rank value, adjust as needed
-        Popularity: 0, // Example popularity value, adjust as needed
-        Members: 0, // Example members value, adjust as needed
-        Favorites: 0, // Example favorites value, adjust as needed
-        Background: 'some background', // Example background, adjust as needed
-        Relations: JSON.stringify([]), // Adjust as needed
-        ExternalLinks: JSON.stringify([]), // Adjust as needed
+        Serializations: JSON.stringify(manga.serializations || []), 
+        Genres: JSON.stringify(manga.genres.map(genre => genre.name)), 
+        ExplicitGenres: JSON.stringify(manga.explicit_genres || []), 
+        Themes: JSON.stringify(manga.themes || []), 
+        Demographics: JSON.stringify(manga.demographics || []),
+        Score: manga.score || 0, 
+        ScoredBy: manga.scored_by || 0, 
+        Rank: manga.rank || 0, 
+        Popularity: manga.popularity || 0, 
+        Members: manga.members || 0, 
+        Favorites: manga.favorites || 0, 
+        Background: manga.background || 'some background', 
+        Relations: JSON.stringify(manga.relations || []), 
+        ExternalLinks: JSON.stringify(manga.external_links || []), 
       });
 
       if (response.status === 201) {
