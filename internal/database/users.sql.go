@@ -7,6 +7,8 @@ package database
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 const createUser = `-- name: CreateUser :exec
@@ -32,7 +34,7 @@ WHERE username = $1
 `
 
 type FetchUserByUsernameRow struct {
-	ID           string
+	ID           uuid.UUID
 	Username     string
 	Email        string
 	PasswordHash string
@@ -56,7 +58,7 @@ FROM users
 `
 
 type ListUsersRow struct {
-	ID       string
+	ID       uuid.UUID
 	Username string
 	Email    string
 }

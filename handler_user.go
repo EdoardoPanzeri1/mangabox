@@ -126,7 +126,7 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 
 	respondWithJSON(w, http.StatusOK, LoginResponse{
 		Token:  tokenString,
-		UserID: user.ID,
+		UserID: user.ID.String(),
 	})
 }
 

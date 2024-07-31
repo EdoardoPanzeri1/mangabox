@@ -20,7 +20,7 @@ WHERE id = $1 AND user_id = $2
 
 type DeleteMangaParams struct {
 	ID     string
-	UserID sql.NullInt32
+	UserID sql.NullString
 }
 
 func (q *Queries) DeleteManga(ctx context.Context, arg DeleteMangaParams) error {
@@ -49,8 +49,8 @@ VALUES (
 
 type InsertMangaIntoCatalogParams struct {
 	ID              string
-	Status          interface{}
-	UserID          sql.NullInt32
+	Status          NullStatus
+	UserID          sql.NullString
 	Title           string
 	IssueNumber     int32
 	PublicationDate time.Time
@@ -118,7 +118,7 @@ WHERE u.username = $1
 type RetrieveCatalogRow struct {
 	Title       string
 	Authors     pqtype.NullRawMessage
-	Status      interface{}
+	Status      NullStatus
 	CoverArtUrl sql.NullString
 	IssueNumber int32
 }
@@ -160,7 +160,7 @@ WHERE id = $1 AND user_id = $2
 
 type UpdateStatusReadParams struct {
 	ID     string
-	UserID sql.NullInt32
+	UserID sql.NullString
 }
 
 func (q *Queries) UpdateStatusRead(ctx context.Context, arg UpdateStatusReadParams) error {

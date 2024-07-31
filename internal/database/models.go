@@ -6,15 +6,60 @@ package database
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
 
+type Status string
+
+const (
+	StatusBought Status = "bought"
+	StatusRead   Status = "read"
+)
+
+func (e *Status) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Status(s)
+	case string:
+		*e = Status(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Status: %T", src)
+	}
+	return nil
+}
+
+type NullStatus struct {
+	Status Status
+	Valid  bool // Valid is true if Status is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.Status, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Status.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Status), nil
+}
+
 type Manga struct {
 	ID              string
-	Status          interface{}
-	UserID          sql.NullInt32
+	Status          NullStatus
+	UserID          sql.NullString
 	Title           string
 	IssueNumber     int32
 	PublicationDate time.Time
@@ -41,7 +86,7 @@ type Manga struct {
 }
 
 type User struct {
-	ID           string
+	ID           uuid.UUID
 	CreatedAt    sql.NullTime
 	UpdatedAt    sql.NullTime
 	Username     string

@@ -123,8 +123,8 @@ type RetrieveManga struct {
 
 type MangaRequest struct {
 	ID              string          `json:"id"`
-	Status          interface{}     `json:"status"`
-	UserID          int32           `json:"user_id"`
+	Status          string          `json:"status"`
+	UserID          string          `json:"user_id"`
 	Title           string          `json:"title"`
 	IssueNumber     int32           `json:"issue_number"`
 	PublicationDate time.Time       `json:"publication_date"`
@@ -150,7 +150,7 @@ type MangaRequest struct {
 }
 
 type UpdateStatusRequest struct {
-	UserID int32  `json:"user_id"`
+	UserID string `json:"user_id"`
 	Status string `json:"status"`
 }
 
@@ -179,4 +179,11 @@ type Claims struct {
 type UpdateRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type Status string
+
+type NullStatus struct {
+	Status Status
+	Valid  bool
 }

@@ -3,8 +3,8 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/EdoardoPanzeri1/mangabox/internal/database"
@@ -43,12 +43,10 @@ func (cfg *apiConfig) handlerRetrieveCatalog(w http.ResponseWriter, r *http.Requ
 			manga.Authors = []string{}
 		}
 
-		// Type assertions for other interface{} fields
-		if status, ok := row.Status.(string); ok {
-			manga.Status = status
+		if row.Status.Valid {
+			manga.Status = string(row.Status.Status)
 		} else {
-			respondWithError(w, http.StatusInternalServerError, "Unexpected data type for status")
-			return
+			manga.Status = ""
 		}
 
 		if row.CoverArtUrl.Valid {
@@ -71,18 +69,22 @@ func (cfg *apiConfig) handlerAddToCatalog(w http.ResponseWriter, r *http.Request
 	// Decode the incoming JSON request into the MangaRequest struct
 	var req MangaRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("handlerAddToCatalog: Invalid request payload: %v\n", err) // Debugging
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
+	defer r.Body.Close()
+	log.Printf("handlerAddToCatalog: Request payload: %+v\n", req)
 
 	// Get the request context
 	ctx := r.Context()
+	log.Println("handlerAddToCatalog: Request context obtained") // Debugging
 
 	// Create an instance of InsertMangaIntoCatalogParams with the decode data
 	params := database.InsertMangaIntoCatalogParams{
 		ID:              req.ID,
-		Status:          req.Status,
-		UserID:          sql.NullInt32{Int32: req.UserID, Valid: true},
+		Status:          database.NullStatus{Status: database.Status(req.Status), Valid: true},
+		UserID:          sql.NullString{String: req.UserID, Valid: true},
 		Title:           req.Title,
 		IssueNumber:     req.IssueNumber,
 		PublicationDate: req.PublicationDate,
@@ -108,13 +110,20 @@ func (cfg *apiConfig) handlerAddToCatalog(w http.ResponseWriter, r *http.Request
 		ExternalLinks:   pqtype.NullRawMessage{RawMessage: req.ExternalLinks, Valid: true},
 	}
 
+	log.Printf("handlerAddToCatalog: Insert parameters: %+v\n", params) // Debugging
+
 	// Call the InsertMangaIntoCatalog method with the constructed parameters
 	if err := cfg.DB.InsertMangaIntoCatalog(ctx, params); err != nil {
+		log.Printf("handlerAddToCatalog: Error inserting manga into catalog: %v\n", err) // Debugging
 		respondWithError(w, http.StatusInternalServerError, "Failed to add manga to catalog")
 		return
 	}
 
 	respondWithJSON(w, http.StatusCreated, map[string]string{"message": "Manga added to catalog"})
+}
+
+func StringToStatus(s string) Status {
+	return Status(s)
 }
 
 func (cfg *apiConfig) handlerStatusManga(w http.ResponseWriter, r *http.Request) {
@@ -143,7 +152,7 @@ func (cfg *apiConfig) handlerStatusManga(w http.ResponseWriter, r *http.Request)
 	// Create parameters for the update query
 	params := database.UpdateStatusReadParams{
 		ID:     mangaID,
-		UserID: sql.NullInt32{Int32: req.UserID, Valid: true},
+		UserID: sql.NullString{String: req.UserID, Valid: true},
 	}
 
 	// Call the UpdateStatusRead method with the constructed parameters
@@ -170,18 +179,12 @@ func (cfg *apiConfig) handlerDeleteManga(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	userIDInt32, err := parseStringToInt32(userID)
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "invalid user ID")
-		return
-	}
-
 	ctx := r.Context()
 
 	// Create parameters for the delete query
 	params := database.DeleteMangaParams{
 		ID:     mangaID,
-		UserID: sql.NullInt32{Int32: userIDInt32, Valid: true},
+		UserID: sql.NullString{String: userID, Valid: true},
 	}
 
 	// Call the deleteManga method with the constructed params
@@ -191,12 +194,4 @@ func (cfg *apiConfig) handlerDeleteManga(w http.ResponseWriter, r *http.Request)
 	}
 
 	respondWithJSON(w, http.StatusOK, map[string]string{"message": "Manga deleted from the catalog"})
-}
-
-func parseStringToInt32(s string) (int32, error) {
-	value, err := strconv.Atoi(s)
-	if err != nil {
-		return 0, err
-	}
-	return int32(value), nil
 }
