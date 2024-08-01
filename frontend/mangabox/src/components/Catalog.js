@@ -15,8 +15,10 @@ const Catalog = () => {
 
     const fetchCatalog = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/mangas?username=${userID}`);
+        const response = await axios.get(`http://localhost:8080/mangas?user_id=${userID}`);
         if (response.status === 200) {
+          const data = response.data;
+          console.log("Fetched data:", data)
           setMangas(response.data);
         } else {
           setMessage('Failed to retrieve catalog');
@@ -40,7 +42,7 @@ const Catalog = () => {
   return (
     <div style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '20px' }}>
       <h1>My Mangas</h1>
-      {mangas.length > 0 ? (
+      {mangas && mangas.length > 0 ? (
       <ul>
         {mangas.map((manga, index) => (
           <li key={index} style={{ marginBottom: '20px' }}>
@@ -48,7 +50,7 @@ const Catalog = () => {
             {manga.coverArtUrl && (
               <img src={manga.coverArtUrl} alt={manga.title} style={{ maxWidth: '200px' }} />
             )}
-            <p>{manga.authors.join(', ')}</p>
+            <p>{Array.isArray(manga.authors) ? manga.authors.join(', ') : 'Unknown authors'}</p>
             <p>Status: {manga.status}</p>
             <p>Issue: {manga.issueNumber}</p>
           </li>

@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS mangas (
     id TEXT PRIMARY KEY,
     status status DEFAULT 'bought',  -- Use the ENUM type created earlier
-    user_id TEXT REFERENCES users(id),
+    user_id UUID REFERENCES users(id),
     title TEXT NOT NULL,
     issue_number INTEGER NOT NULL,
     publication_date DATE NOT NULL,
@@ -29,4 +29,8 @@ CREATE TABLE IF NOT EXISTS mangas (
     external_links JSON                -- Store as JSON
 );
 
+ALTER TABLE mangas
+ALTER COLUMN user_id TYPE UUID USING user_id::UUID;
+
 -- +goose Down
+DROP TABLE IF EXISTS mangas;

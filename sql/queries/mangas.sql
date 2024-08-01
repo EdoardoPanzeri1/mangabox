@@ -25,7 +25,7 @@ VALUES (
 SELECT m.title, m.authors, m.status, m.cover_art_url, m.issue_number
 FROM mangas m
 JOIN users u ON m.user_id = u.id
-WHERE u.username = $1;
+WHERE m.user_id = $1;
 
 -- name: DeleteManga :exec
 DELETE FROM mangas

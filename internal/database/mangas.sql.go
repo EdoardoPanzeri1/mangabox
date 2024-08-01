@@ -10,6 +10,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
 
@@ -20,7 +21,7 @@ WHERE id = $1 AND user_id = $2
 
 type DeleteMangaParams struct {
 	ID     string
-	UserID sql.NullString
+	UserID uuid.NullUUID
 }
 
 func (q *Queries) DeleteManga(ctx context.Context, arg DeleteMangaParams) error {
@@ -49,8 +50,8 @@ VALUES (
 
 type InsertMangaIntoCatalogParams struct {
 	ID              string
-	Status          NullStatus
-	UserID          sql.NullString
+	Status          interface{}
+	UserID          uuid.NullUUID
 	Title           string
 	IssueNumber     int32
 	PublicationDate time.Time
@@ -112,19 +113,19 @@ const retrieveCatalog = `-- name: RetrieveCatalog :many
 SELECT m.title, m.authors, m.status, m.cover_art_url, m.issue_number
 FROM mangas m
 JOIN users u ON m.user_id = u.id
-WHERE u.username = $1
+WHERE m.user_id = $1
 `
 
 type RetrieveCatalogRow struct {
 	Title       string
 	Authors     pqtype.NullRawMessage
-	Status      NullStatus
+	Status      interface{}
 	CoverArtUrl sql.NullString
 	IssueNumber int32
 }
 
-func (q *Queries) RetrieveCatalog(ctx context.Context, username string) ([]RetrieveCatalogRow, error) {
-	rows, err := q.db.QueryContext(ctx, retrieveCatalog, username)
+func (q *Queries) RetrieveCatalog(ctx context.Context, userID uuid.NullUUID) ([]RetrieveCatalogRow, error) {
+	rows, err := q.db.QueryContext(ctx, retrieveCatalog, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +161,7 @@ WHERE id = $1 AND user_id = $2
 
 type UpdateStatusReadParams struct {
 	ID     string
-	UserID sql.NullString
+	UserID uuid.NullUUID
 }
 
 func (q *Queries) UpdateStatusRead(ctx context.Context, arg UpdateStatusReadParams) error {

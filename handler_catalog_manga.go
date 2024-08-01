@@ -8,23 +8,32 @@ import (
 	"time"
 
 	"github.com/EdoardoPanzeri1/mangabox/internal/database"
+	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
 
 func (cfg *apiConfig) handlerRetrieveCatalog(w http.ResponseWriter, r *http.Request) {
-	username := r.URL.Query().Get("username")
-	if username == "" {
-		respondWithError(w, http.StatusBadRequest, "username is required")
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
+		respondWithError(w, http.StatusBadRequest, "user_id is required")
 		return
 	}
 
-	ctx := r.Context()
+	// Convert userID string to uuid.NullUUID
+	var nullUserID uuid.NullUUID
+	if uid, err := uuid.Parse(userID); err == nil {
+		nullUserID = uuid.NullUUID{UUID: uid, Valid: true}
+	} else {
+		nullUserID = uuid.NullUUID{Valid: false}
+	}
 
 	// Debugging
-	log.Printf("Retrieve catalog from username: %s", username)
+	log.Printf("Retrieve catalog from user_id: %s", userID)
+
+	ctx := r.Context()
 
 	// Use the generated RetrieveCatalog method
-	rows, err := cfg.DB.RetrieveCatalog(ctx, username)
+	rows, err := cfg.DB.RetrieveCatalog(ctx, nullUserID)
 	if err != nil {
 		// Debugging
 		log.Printf("Error retrieving catalog from database %v", err)
@@ -41,6 +50,8 @@ func (cfg *apiConfig) handlerRetrieveCatalog(w http.ResponseWriter, r *http.Requ
 			// Unmarshal the authors JSON string into the Authors slice
 			err := json.Unmarshal(row.Authors.RawMessage, &manga.Authors)
 			if err != nil {
+				// Debugging
+				log.Printf("Error parsing authors from JSON: %v", err)
 				respondWithError(w, http.StatusInternalServerError, "Failed to parse authors")
 				return
 			}
@@ -48,8 +59,15 @@ func (cfg *apiConfig) handlerRetrieveCatalog(w http.ResponseWriter, r *http.Requ
 			manga.Authors = []string{}
 		}
 
-		if row.Status.Valid {
-			manga.Status = string(row.Status.Status)
+		if row.Status != nil {
+			statusStr, ok := row.Status.(string)
+			if ok {
+				manga.Status = statusStr
+			} else {
+				log.Printf("Error: Status is not a string, it's %T", row.Status)
+				respondWithError(w, http.StatusInternalServerError, "Invalid Status type")
+				return
+			}
 		} else {
 			manga.Status = ""
 		}
@@ -85,11 +103,13 @@ func (cfg *apiConfig) handlerAddToCatalog(w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 	log.Println("handlerAddToCatalog: Request context obtained") // Debugging
 
+	nullUserID := stringToNullUUID(req.UserID)
+
 	// Create an instance of InsertMangaIntoCatalogParams with the decode data
 	params := database.InsertMangaIntoCatalogParams{
 		ID:              req.ID,
-		Status:          database.NullStatus{Status: database.Status(req.Status), Valid: true},
-		UserID:          sql.NullString{String: req.UserID, Valid: true},
+		Status:          req.Status,
+		UserID:          nullUserID,
 		Title:           req.Title,
 		IssueNumber:     req.IssueNumber,
 		PublicationDate: req.PublicationDate,
@@ -154,10 +174,12 @@ func (cfg *apiConfig) handlerStatusManga(w http.ResponseWriter, r *http.Request)
 
 	ctx := r.Context()
 
+	nullUserID := stringToNullUUID(req.UserID)
+
 	// Create parameters for the update query
 	params := database.UpdateStatusReadParams{
 		ID:     mangaID,
-		UserID: sql.NullString{String: req.UserID, Valid: true},
+		UserID: nullUserID,
 	}
 
 	// Call the UpdateStatusRead method with the constructed parameters
@@ -186,10 +208,12 @@ func (cfg *apiConfig) handlerDeleteManga(w http.ResponseWriter, r *http.Request)
 
 	ctx := r.Context()
 
+	nullUserID := stringToNullUUID(userID)
+
 	// Create parameters for the delete query
 	params := database.DeleteMangaParams{
 		ID:     mangaID,
-		UserID: sql.NullString{String: userID, Valid: true},
+		UserID: nullUserID,
 	}
 
 	// Call the deleteManga method with the constructed params
@@ -199,4 +223,15 @@ func (cfg *apiConfig) handlerDeleteManga(w http.ResponseWriter, r *http.Request)
 	}
 
 	respondWithJSON(w, http.StatusOK, map[string]string{"message": "Manga deleted from the catalog"})
+}
+
+// stringToNullUUID converts a string to a uuid.NullUUID
+func stringToNullUUID(str string) uuid.NullUUID {
+	var nullUUID uuid.NullUUID
+	if uid, err := uuid.Parse(str); err == nil {
+		nullUUID = uuid.NullUUID{UUID: uid, Valid: true}
+	} else {
+		nullUUID = uuid.NullUUID{Valid: false}
+	}
+	return nullUUID
 }
