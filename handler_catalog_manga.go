@@ -19,18 +19,13 @@ func (cfg *apiConfig) handlerRetrieveCatalog(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// Convert userID string to uuid.NullUUID
-	var nullUserID uuid.NullUUID
-	if uid, err := uuid.Parse(userID); err == nil {
-		nullUserID = uuid.NullUUID{UUID: uid, Valid: true}
-	} else {
-		nullUserID = uuid.NullUUID{Valid: false}
-	}
+	nullUserID := stringToNullUUID(userID)
 
 	// Debugging
 	log.Printf("Retrieve catalog from user_id: %s", userID)
 
 	ctx := r.Context()
+	log.Println("handlerAddToCatalog: Request context obtained") // Debugging
 
 	// Use the generated RetrieveCatalog method
 	rows, err := cfg.DB.RetrieveCatalog(ctx, nullUserID)
@@ -48,10 +43,18 @@ func (cfg *apiConfig) handlerRetrieveCatalog(w http.ResponseWriter, r *http.Requ
 		// Handle pqtype.NullRawMessage
 		if row.Authors.Valid {
 			// Unmarshal the authors JSON string into the Authors slice
-			err := json.Unmarshal(row.Authors.RawMessage, &manga.Authors)
+			var authorsString string
+			err := json.Unmarshal(row.Authors.RawMessage, &authorsString)
 			if err != nil {
 				// Debugging
+				log.Printf("Raw Authors JSON: %s", string(row.Authors.RawMessage))
 				log.Printf("Error parsing authors from JSON: %v", err)
+				respondWithError(w, http.StatusInternalServerError, "Failed to parse authors")
+				return
+			}
+
+			if err := json.Unmarshal([]byte(authorsString), &manga.Authors); err != nil {
+				log.Printf("Error parsing author from JSON: %v", err)
 				respondWithError(w, http.StatusInternalServerError, "Failed to parse authors")
 				return
 			}
@@ -60,9 +63,10 @@ func (cfg *apiConfig) handlerRetrieveCatalog(w http.ResponseWriter, r *http.Requ
 		}
 
 		if row.Status != nil {
-			statusStr, ok := row.Status.(string)
+			// Convert []uint8 to string
+			statusByte, ok := row.Status.([]uint8)
 			if ok {
-				manga.Status = statusStr
+				manga.Status = string(statusByte)
 			} else {
 				log.Printf("Error: Status is not a string, it's %T", row.Status)
 				respondWithError(w, http.StatusInternalServerError, "Invalid Status type")
@@ -75,8 +79,7 @@ func (cfg *apiConfig) handlerRetrieveCatalog(w http.ResponseWriter, r *http.Requ
 		if row.CoverArtUrl.Valid {
 			manga.CoverArtUrl = row.CoverArtUrl.String
 		} else {
-			respondWithError(w, http.StatusInternalServerError, "Unexpected data type for cover art url")
-			return
+			manga.CoverArtUrl = ""
 		}
 
 		manga.IssueNumber = int(row.IssueNumber)

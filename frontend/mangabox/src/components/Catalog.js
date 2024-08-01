@@ -47,12 +47,11 @@ const Catalog = () => {
         {mangas.map((manga, index) => (
           <li key={index} style={{ marginBottom: '20px' }}>
             <h3>{manga.title}</h3>
-            {manga.coverArtUrl && (
-              <img src={manga.coverArtUrl} alt={manga.title} style={{ maxWidth: '200px' }} />
+            {manga.cover_art_url && (
+              <img src={manga.cover_art_url} alt={manga.title} style={{ maxWidth: '200px' }} />
             )}
             <p>{Array.isArray(manga.authors) ? manga.authors.join(', ') : 'Unknown authors'}</p>
             <p>Status: {manga.status}</p>
-            <p>Issue: {manga.issueNumber}</p>
           </li>
         ))}
       </ul>
