@@ -5,6 +5,7 @@ import Login from './components/Login';
 import Profile from './components/Profile';
 import Search from './components/Search';
 import Details from './components/Details';
+import Catalog from './components/Catalog';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/search" element={<Search />} />
           <Route path='/details' element={<Details />} />
+          <Route path='/mangas' element={<Catalog/>} />
           {/* Default route */}
           <Route path="*" element={<Login />} />
         </Routes>

@@ -15,7 +15,7 @@ const Catalog = () => {
 
     const fetchCatalog = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/catalog?username=${userID}`);
+        const response = await axios.get(`http://localhost:8080/mangas?username=${userID}`);
         if (response.status === 200) {
           setMangas(response.data);
         } else {
@@ -30,6 +30,9 @@ const Catalog = () => {
     fetchCatalog();
   }, []);
 
+  // Debug check if fetching is working
+  console.log('Catalog:', mangas);
+
   if (message) {
     return <p>{message}</p>;
   }
@@ -37,24 +40,25 @@ const Catalog = () => {
   return (
     <div style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '20px' }}>
       <h1>My Mangas</h1>
-      {mangas.length === 0 ? (
-        <p>No mangas found in your catalog.</p>
-      ) : (
-        <ul>
-          {mangas.map(manga => (
-            <li key={manga.ID}>
-              <h2>{manga.Title}</h2>
-              <img src={manga.CoverArtUrl} alt={manga.Title} style={{ maxWidth: '200px' }} />
-              <p>Authors: {manga.Authors.join(', ')}</p>
-              <p>Status: {manga.Status}</p>
-              <p>Issue Number: {manga.IssueNumber}</p>
-            </li>
-          ))}
-        </ul>
-      )}
-      <Link to="/search" style={{ color: 'white' }}>Back to Search</Link>
-    </div>
-  );
-};
+      {mangas.length > 0 ? (
+      <ul>
+        {mangas.map((manga, index) => (
+          <li key={index} style={{ marginBottom: '20px' }}>
+            <h3>{manga.title}</h3>
+            {manga.coverArtUrl && (
+              <img src={manga.coverArtUrl} alt={manga.title} style={{ maxWidth: '200px' }} />
+            )}
+            <p>{manga.authors.join(', ')}</p>
+            <p>Status: {manga.status}</p>
+            <p>Issue: {manga.issueNumber}</p>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p>No mangas found</p>
+    )}
+  </div>
+);
+}
 
 export default Catalog;

@@ -20,10 +20,15 @@ func (cfg *apiConfig) handlerRetrieveCatalog(w http.ResponseWriter, r *http.Requ
 
 	ctx := r.Context()
 
+	// Debugging
+	log.Printf("Retrieve catalog from username: %s", username)
+
 	// Use the generated RetrieveCatalog method
 	rows, err := cfg.DB.RetrieveCatalog(ctx, username)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "")
+		// Debugging
+		log.Printf("Error retrieving catalog from database %v", err)
+		respondWithError(w, http.StatusInternalServerError, "Failed to retrieve the catalog")
 		return
 	}
 
