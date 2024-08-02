@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Catalog = () => {
   const [mangas, setMangas] = useState([]);
   const [message, setMessage] = useState('');
+  const userID = localStorage.getItem('user_id');
+  const navigate = useNavigate(); // Hook for redirecting
 
   useEffect(() => {
     const userID = localStorage.getItem('user_id');
@@ -32,6 +34,36 @@ const Catalog = () => {
     fetchCatalog();
   }, []);
 
+  const deleteManga = async (id) => {
+    if (!userID) {
+      setMessage('You must be logged in to delete mangas');
+      return;
+    }
+
+    console.log('Deleting manga with ID:', id); // Debug log
+
+    try {
+      const response = await axios.delete(`http://localhost:8080/mangas/${id}`, {
+        params: {
+          user_id: userID
+        }
+      });
+      if (response.status === 200) {
+        setMessage('Manga deleted successfully');
+        // Update the manga list after deletion
+        setMangas(prevMangas => prevMangas.filter(manga => manga.id !== id));
+        // Redirect to the catlog page
+        navigate('/mangas');
+      } else {
+        setMessage('Failed to delete manga');
+      }
+    } catch (error) {
+      console.error('Error deleting manga:', error);
+      setMessage('An error occurred while deleting the manga');
+    }
+  };
+
+
   // Debug check if fetching is working
   console.log('Catalog:', mangas);
 
@@ -52,6 +84,7 @@ const Catalog = () => {
             )}
             <p>{Array.isArray(manga.authors) ? manga.authors.join(', ') : 'Unknown authors'}</p>
             <p>Status: {manga.status}</p>
+            <button onClick={() => deleteManga(manga.id)}>Delete</button>
           </li>
         ))}
       </ul>
