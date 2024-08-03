@@ -110,13 +110,14 @@ func (q *Queries) InsertMangaIntoCatalog(ctx context.Context, arg InsertMangaInt
 }
 
 const retrieveCatalog = `-- name: RetrieveCatalog :many
-SELECT m.title, m.authors, m.status, m.cover_art_url, m.issue_number
+SELECT m.id, m.title, m.authors, m.status, m.cover_art_url, m.issue_number
 FROM mangas m
 JOIN users u ON m.user_id = u.id
 WHERE m.user_id = $1
 `
 
 type RetrieveCatalogRow struct {
+	ID          string
 	Title       string
 	Authors     pqtype.NullRawMessage
 	Status      interface{}
@@ -134,6 +135,7 @@ func (q *Queries) RetrieveCatalog(ctx context.Context, userID uuid.NullUUID) ([]
 	for rows.Next() {
 		var i RetrieveCatalogRow
 		if err := rows.Scan(
+			&i.ID,
 			&i.Title,
 			&i.Authors,
 			&i.Status,

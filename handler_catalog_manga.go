@@ -9,6 +9,7 @@ import (
 
 	"github.com/EdoardoPanzeri1/mangabox/internal/database"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"github.com/sqlc-dev/pqtype"
 )
 
@@ -84,6 +85,7 @@ func (cfg *apiConfig) handlerRetrieveCatalog(w http.ResponseWriter, r *http.Requ
 
 		manga.IssueNumber = int(row.IssueNumber)
 
+		manga.ID = row.ID
 		manga.Title = row.Title
 		mangas = append(mangas, manga)
 	}
@@ -195,8 +197,14 @@ func (cfg *apiConfig) handlerStatusManga(w http.ResponseWriter, r *http.Request)
 }
 
 func (cfg *apiConfig) handlerDeleteManga(w http.ResponseWriter, r *http.Request) {
-	// Exctract the manga ID from the URL query parameters
-	mangaID := r.URL.Query().Get("id")
+	if r.Method != http.MethodDelete {
+		respondWithError(w, http.StatusMethodNotAllowed, "Method not allowed")
+		return
+	}
+
+	// Extract the manga ID from the URL path parameters
+	vars := mux.Vars(r)
+	mangaID := vars["id"]
 	if mangaID == "" {
 		respondWithError(w, http.StatusBadRequest, "manga ID is required")
 		return
