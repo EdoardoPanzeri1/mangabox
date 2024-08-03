@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Details = () => {
@@ -8,6 +8,7 @@ const Details = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const mangaId = queryParams.get('id');
+  const navigate = useNavigate();
 
   // Debugging: Log location and mangaId
   console.log('Location:', location);
@@ -108,6 +109,12 @@ const Details = () => {
         Add to Database
       </button>
       {message && <p>{message}</p>}
+      <button 
+        onClick={() => navigate('/search')}
+        style={{ margin: '10px 0', padding: '10px', backgroundColor: 'blue', color: 'white', border: 'none', cursor: 'pointer' }}
+      >
+        Back to Search
+      </button>
     </div>
   );
 };
