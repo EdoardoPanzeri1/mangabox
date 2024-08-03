@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+
 
 const Catalog = () => {
   const [mangas, setMangas] = useState([]);
   const [message, setMessage] = useState('');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
   const userID = localStorage.getItem('user_id');
-  const navigate = useNavigate(); // Hook for redirecting
 
   useEffect(() => {
     const userID = localStorage.getItem('user_id');
@@ -34,6 +34,22 @@ const Catalog = () => {
     fetchCatalog();
   }, []);
 
+  const fetchCatalog = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/mangas?user_id=${userID}`);
+      if (response.status === 200) {
+        const data = response.data;
+        console.log("Fetched data:", data);
+        setMangas(response.data);
+      } else {
+        setMessage('Failed to retrieve catalog');
+      }
+    } catch (error) {
+      console.error('Error fetching catalog:', error);
+      setMessage('An error occurred while retrieving the catalog');
+    }
+  };
+
   const deleteManga = async (id) => {
     if (!userID) {
       setMessage('You must be logged in to delete mangas');
@@ -50,27 +66,20 @@ const Catalog = () => {
       });
   
       if (response.status === 200) {
-        setMessage('Manga deleted successfully');
-        // Update the manga list after deletion
-        setMangas((prevMangas) =>
-          prevMangas.filter((manga) => manga.id !== id)
-        );
+        setFeedbackMessage('Manga deleted successfully');
+        fetchCatalog(); // Re-fetch the catalog to update the list of mangas
       } else {
-        setMessage('Failed to delete manga');
+        setFeedbackMessage('Failed to delete the manga');
       }
     } catch (error) {
       console.error('Error deleting manga:', error);
-      setMessage('An error occurred while deleting the manga');
+      setFeedbackMessage('An error occurred while deleting the manga');
     }
   };
-
 
   // Debug check if fetching is working
   console.log('Catalog:', mangas);
 
-  if (message) {
-    return <p>{message}</p>;
-  }
 
   return (
     <div style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '20px' }}>
