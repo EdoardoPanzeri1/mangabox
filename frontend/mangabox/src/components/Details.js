@@ -91,7 +91,15 @@ const Details = () => {
 
   return (
     <div style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '20px' }}>
-      <h1>{manga.title}</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1>{manga.title}</h1>
+        <button 
+          onClick={() => navigate('/search')}
+          style={{ margin: '10px 0', padding: '10px', backgroundColor: 'blue', color: 'white', border: 'none', cursor: 'pointer' }}
+        >
+          Back to Search
+        </button>
+      </div>
       <img 
         src={manga.images.jpg.image_url} 
         alt={manga.title} 
@@ -109,12 +117,6 @@ const Details = () => {
         Add to Database
       </button>
       {message && <p>{message}</p>}
-      <button 
-        onClick={() => navigate('/search')}
-        style={{ margin: '10px 0', padding: '10px', backgroundColor: 'blue', color: 'white', border: 'none', cursor: 'pointer' }}
-      >
-        Back to Search
-      </button>
     </div>
   );
 };

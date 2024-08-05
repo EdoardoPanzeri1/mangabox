@@ -157,16 +157,17 @@ func (q *Queries) RetrieveCatalog(ctx context.Context, userID uuid.NullUUID) ([]
 
 const updateStatusRead = `-- name: UpdateStatusRead :exec
 UPDATE mangas 
-SET status = 'read'
+SET status = $3
 WHERE id = $1 AND user_id = $2
 `
 
 type UpdateStatusReadParams struct {
 	ID     string
 	UserID uuid.NullUUID
+	Status interface{}
 }
 
 func (q *Queries) UpdateStatusRead(ctx context.Context, arg UpdateStatusReadParams) error {
-	_, err := q.db.ExecContext(ctx, updateStatusRead, arg.ID, arg.UserID)
+	_, err := q.db.ExecContext(ctx, updateStatusRead, arg.ID, arg.UserID, arg.Status)
 	return err
 }

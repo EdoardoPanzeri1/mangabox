@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 
 const Catalog = () => {
@@ -7,32 +8,7 @@ const Catalog = () => {
   const [message, setMessage] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const userID = localStorage.getItem('user_id');
-
-  useEffect(() => {
-    const userID = localStorage.getItem('user_id');
-    if (!userID) {
-      setMessage('You must be logged in to view your catalog');
-      return;
-    }
-
-    const fetchCatalog = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8080/mangas?user_id=${userID}`);
-        if (response.status === 200) {
-          const data = response.data;
-          console.log("Fetched data:", data)
-          setMangas(response.data);
-        } else {
-          setMessage('Failed to retrieve catalog');
-        }
-      } catch (error) {
-        console.error('Error fetching catalog:', error);
-        setMessage('An error occurred while retrieving the catalog');
-      }
-    };
-
-    fetchCatalog();
-  }, []);
+  const navigate = useNavigate();
 
   const fetchCatalog = async () => {
     try {
@@ -40,7 +16,7 @@ const Catalog = () => {
       if (response.status === 200) {
         const data = response.data;
         console.log("Fetched data:", data);
-        setMangas(response.data);
+        setMangas(data);
       } else {
         setMessage('Failed to retrieve catalog');
       }
@@ -49,6 +25,14 @@ const Catalog = () => {
       setMessage('An error occurred while retrieving the catalog');
     }
   };
+
+  useEffect(() => {
+    if (!userID) {
+      setMessage('You must be logged in to view your catalog');
+    } else {
+      fetchCatalog();
+    }
+  }, [userID]);
 
   const deleteManga = async (id) => {
     if (!userID) {
@@ -77,7 +61,7 @@ const Catalog = () => {
     }
   };
 
-  const updateMangaStatus = async (id) => {
+  const updateMangaStatus = async (id, newStatus) => {
     if (!userID) {
       setMessage('You must be logged in to update manga status');
       return;
@@ -86,7 +70,8 @@ const Catalog = () => {
     console.log('Updating status to read for manga with ID:', id); // Debug log
   
     try {
-      const payload = { status: 'read', user_id: userID };
+      const payload = { status: newStatus, user_id: userID };
+      console.log(`Updating manga ID: ${id} to status: ${newStatus}`);
       console.log('Payload being sent:', payload); // Debug log
   
       const response = await axios.put(
@@ -100,8 +85,11 @@ const Catalog = () => {
       );
   
       if (response.status === 200) {
-        setFeedbackMessage('Manga status updated to read');
-        fetchCatalog(); // Re-fetch the catalog to update the list of mangas
+        setFeedbackMessage('Manga status updated successfully');
+        // Update the local state to reflect the status change
+        setMangas(prevMangas =>
+          prevMangas.map(manga => manga.id === id ? { ...manga, status: newStatus } : manga)
+        );
       } else {
         setFeedbackMessage('Failed to update manga status');
       }
@@ -109,46 +97,7 @@ const Catalog = () => {
       console.error('Error updating manga status:', error);
       setFeedbackMessage('An error occurred while updating the manga status');
     }
-
-    const revertMangaStatus = async (id) => {
-      if (!userID) {
-        setMessage('You must be logged in to update manga status');
-        return;
-      }
-    
-      console.log('Reverting status for manga with ID:', id); // Debug log
-    
-      try {
-        const payload = { status: 'unread', user_id: userID };
-        console.log('Payload being sent:', payload); // Debug log
-    
-        const response = await axios.put(
-          `http://localhost:8080/mangas/${id}`,
-          payload,
-          {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-    
-        if (response.status === 200) {
-          setFeedbackMessage('Manga status reverted to unread');
-          fetchCatalog(); // Re-fetch the catalog to update the list of mangas
-        } else {
-          setFeedbackMessage('Failed to revert manga status');
-        }
-      } catch (error) {
-        console.error('Error reverting manga status:', error);
-        setFeedbackMessage('An error occurred while reverting the manga status');
-      }
-    };
-
-    
   };
-
-
-
 
   // Debug check if fetching is working
   console.log('Catalog:', mangas);
@@ -156,39 +105,73 @@ const Catalog = () => {
 
   return (
     <div style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '20px' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
       <h1>My Mangas</h1>
-      {mangas && mangas.length > 0 ? (
-        <ul>
-          {mangas.map((manga, index) => (
-            <li key={index} style={{ marginBottom: '20px' }}>
-              <h3>{manga.title}</h3>
-              {manga.cover_art_url && (
-                <img src={manga.cover_art_url} alt={manga.title} style={{ maxWidth: '200px' }} />
-              )}
-              <p>{Array.isArray(manga.authors) ? manga.authors.join(', ') : 'Unknown authors'}</p>
-              <p>Status: {manga.status}</p>
-              <button onClick={() => {
-                console.log("Manga ID being passed:", manga.id); // Debug 
-                deleteManga(manga.id);
-              }}>
-                Delete
-              </button>
-              <button onClick={() => {
-                console.log("Manga ID being passed:", manga.id); // Debug 
-                updateMangaStatus(manga.id);
-              }}>
-                Mark as Read
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No mangas found</p>
-      )}
-      {message && <p>{message}</p>}
-      {feedbackMessage && <p>{feedbackMessage}</p>}
+      <button 
+        onClick={() => navigate('/search')}
+        style={{ backgroundColor: 'white', color: 'black', padding: '10px', borderRadius: '5px' }}
+      >
+        Back to Search
+      </button>
     </div>
-  );
+    {message && <p>{message}</p>}
+    {feedbackMessage && <p>{feedbackMessage}</p>}
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ flex: 1, margin: '10px' }}>
+          <h2>Bought</h2>
+          {mangas && mangas.filter(manga => manga.status === 'bought').length > 0 ? (
+            <ul>
+              {mangas.filter(manga => manga.status === 'bought').map((manga, index) => (
+                <li key={index} style={{ marginBottom: '20px' }}>
+                  <h3>{manga.title}</h3>
+                  {manga.cover_art_url && (
+                    <img src={manga.cover_art_url} alt={manga.title} style={{ maxWidth: '200px' }} />
+                  )}
+                  <p>{Array.isArray(manga.authors) ? manga.authors.join(', ') : 'Unknown authors'}</p>
+                  <p>Status: {manga.status}</p>
+                  <button onClick={() => deleteManga(manga.id)}>
+                    Delete
+                  </button>
+                  <button onClick={() => updateMangaStatus(manga.id, 'read')}>
+                    Mark as Read
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No mangas found</p>
+          )}
+        </div>
+
+        <div style={{ flex: 1, margin: '10px' }}>
+        <h2>Read</h2>
+        {mangas && mangas.filter(manga => manga.status === 'read').length > 0 ? (
+          <ul>
+            {mangas.filter(manga => manga.status === 'read').map((manga, index) => (
+              <li key={index} style={{ marginBottom: '20px' }}>
+                <h3>{manga.title}</h3>
+                {manga.cover_art_url && (
+                  <img src={manga.cover_art_url} alt={manga.title} style={{ maxWidth: '200px' }} />
+                )}
+                <p>{Array.isArray(manga.authors) ? manga.authors.join(', ') : 'Unknown authors'}</p>
+                <p>Status: {manga.status}</p>
+                <button onClick={() => deleteManga(manga.id)}>
+                  Delete
+                </button>
+                <button onClick={() => updateMangaStatus(manga.id, 'bought')}>
+                  Mark as Bought
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No mangas found</p>
+        )}
+      </div>
+    </div>
+  </div>
+);
 };
 
 export default Catalog;

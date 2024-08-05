@@ -173,8 +173,8 @@ func (cfg *apiConfig) handlerStatusManga(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Ensure that the status provided is valid
-	if req.Status != "read" {
-		respondWithError(w, http.StatusBadRequest, "Invalid status value; only 'read' is allowed")
+	if req.Status != "read" && req.Status != "bought" {
+		respondWithError(w, http.StatusBadRequest, "Invalid status value; only 'read' or 'bought' is allowed")
 		return
 	}
 
@@ -189,6 +189,7 @@ func (cfg *apiConfig) handlerStatusManga(w http.ResponseWriter, r *http.Request)
 	params := database.UpdateStatusReadParams{
 		ID:     mangaID,
 		UserID: nullUserID,
+		Status: req.Status,
 	}
 
 	// Call the UpdateStatusRead method with the constructed parameters

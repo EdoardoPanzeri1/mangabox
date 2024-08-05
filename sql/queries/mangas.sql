@@ -1,6 +1,6 @@
 -- name: UpdateStatusRead :exec
 UPDATE mangas 
-SET status = 'read'
+SET status = $3
 WHERE id = $1 AND user_id = $2;
 
 -- name: InsertMangaIntoCatalog :exec
