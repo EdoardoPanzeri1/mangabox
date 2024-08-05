@@ -77,6 +77,79 @@ const Catalog = () => {
     }
   };
 
+  const updateMangaStatus = async (id) => {
+    if (!userID) {
+      setMessage('You must be logged in to update manga status');
+      return;
+    }
+  
+    console.log('Updating status to read for manga with ID:', id); // Debug log
+  
+    try {
+      const payload = { status: 'read', user_id: userID };
+      console.log('Payload being sent:', payload); // Debug log
+  
+      const response = await axios.put(
+        `http://localhost:8080/mangas/${id}`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+  
+      if (response.status === 200) {
+        setFeedbackMessage('Manga status updated to read');
+        fetchCatalog(); // Re-fetch the catalog to update the list of mangas
+      } else {
+        setFeedbackMessage('Failed to update manga status');
+      }
+    } catch (error) {
+      console.error('Error updating manga status:', error);
+      setFeedbackMessage('An error occurred while updating the manga status');
+    }
+
+    const revertMangaStatus = async (id) => {
+      if (!userID) {
+        setMessage('You must be logged in to update manga status');
+        return;
+      }
+    
+      console.log('Reverting status for manga with ID:', id); // Debug log
+    
+      try {
+        const payload = { status: 'unread', user_id: userID };
+        console.log('Payload being sent:', payload); // Debug log
+    
+        const response = await axios.put(
+          `http://localhost:8080/mangas/${id}`,
+          payload,
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+    
+        if (response.status === 200) {
+          setFeedbackMessage('Manga status reverted to unread');
+          fetchCatalog(); // Re-fetch the catalog to update the list of mangas
+        } else {
+          setFeedbackMessage('Failed to revert manga status');
+        }
+      } catch (error) {
+        console.error('Error reverting manga status:', error);
+        setFeedbackMessage('An error occurred while reverting the manga status');
+      }
+    };
+
+    
+  };
+
+
+
+
   // Debug check if fetching is working
   console.log('Catalog:', mangas);
 
@@ -100,12 +173,20 @@ const Catalog = () => {
               }}>
                 Delete
               </button>
+              <button onClick={() => {
+                console.log("Manga ID being passed:", manga.id); // Debug 
+                updateMangaStatus(manga.id);
+              }}>
+                Mark as Read
+              </button>
             </li>
           ))}
         </ul>
       ) : (
         <p>No mangas found</p>
       )}
+      {message && <p>{message}</p>}
+      {feedbackMessage && <p>{feedbackMessage}</p>}
     </div>
   );
 };

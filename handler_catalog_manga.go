@@ -157,10 +157,11 @@ func StringToStatus(s string) Status {
 }
 
 func (cfg *apiConfig) handlerStatusManga(w http.ResponseWriter, r *http.Request) {
-	// Exctract the manga ID from the URL
-	mangaID := r.URL.Query().Get("id")
+	// Extract the manga ID from the URL
+	vars := mux.Vars(r)
+	mangaID := vars["id"]
 	if mangaID == "" {
-		respondWithError(w, http.StatusBadRequest, "manga ID is required")
+		respondWithError(w, http.StatusBadRequest, "Manga ID is required")
 		return
 	}
 
@@ -176,6 +177,9 @@ func (cfg *apiConfig) handlerStatusManga(w http.ResponseWriter, r *http.Request)
 		respondWithError(w, http.StatusBadRequest, "Invalid status value; only 'read' is allowed")
 		return
 	}
+
+	// Debugg
+	log.Printf("Payload received: %+v", req)
 
 	ctx := r.Context()
 
