@@ -10,6 +10,10 @@ COPY go.mod go.sum ./
 # Download all dependencies
 RUN go mod download
 
+# Install goose
+RUN apk add --no-cache git \
+   && go install github.com/pressly/goose/v3/cmd/goose@latest
+
 # Copy the source from the current directory to the Working Directory inside the container
 COPY . .
 
@@ -24,7 +28,7 @@ WORKDIR /root/
 
 # Copy the Pre-built binary file from the previous stage
 COPY --from=builder /app/mangabox .
-
+COPY --from=builder /go/bin/goose /usr/local/bin/goose
 COPY --from=builder /app/.env .
 
 # Command to run the application
