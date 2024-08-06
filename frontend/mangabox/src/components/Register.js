@@ -16,7 +16,8 @@ const Register = () => {
         email,
         password,
       });
-      if (response.status === 201) {
+      console.log('Response:', response); // Log response
+      if (response.status === 200) {
         // Registration successful, redirect to login
         navigate('/login');
       }
