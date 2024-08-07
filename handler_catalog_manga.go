@@ -22,17 +22,11 @@ func (cfg *apiConfig) handlerRetrieveCatalog(w http.ResponseWriter, r *http.Requ
 
 	nullUserID := stringToNullUUID(userID)
 
-	// Debugging
-	log.Printf("Retrieve catalog from user_id: %s", userID)
-
 	ctx := r.Context()
-	log.Println("handlerAddToCatalog: Request context obtained") // Debugging
 
 	// Use the generated RetrieveCatalog method
 	rows, err := cfg.DB.RetrieveCatalog(ctx, nullUserID)
 	if err != nil {
-		// Debugging
-		log.Printf("Error retrieving catalog from database %v", err)
 		respondWithError(w, http.StatusInternalServerError, "Failed to retrieve the catalog")
 		return
 	}
@@ -49,13 +43,11 @@ func (cfg *apiConfig) handlerRetrieveCatalog(w http.ResponseWriter, r *http.Requ
 			if err != nil {
 				// Debugging
 				log.Printf("Raw Authors JSON: %s", string(row.Authors.RawMessage))
-				log.Printf("Error parsing authors from JSON: %v", err)
 				respondWithError(w, http.StatusInternalServerError, "Failed to parse authors")
 				return
 			}
 
 			if err := json.Unmarshal([]byte(authorsString), &manga.Authors); err != nil {
-				log.Printf("Error parsing author from JSON: %v", err)
 				respondWithError(w, http.StatusInternalServerError, "Failed to parse authors")
 				return
 			}
@@ -69,7 +61,6 @@ func (cfg *apiConfig) handlerRetrieveCatalog(w http.ResponseWriter, r *http.Requ
 			if ok {
 				manga.Status = string(statusByte)
 			} else {
-				log.Printf("Error: Status is not a string, it's %T", row.Status)
 				respondWithError(w, http.StatusInternalServerError, "Invalid Status type")
 				return
 			}
@@ -97,16 +88,13 @@ func (cfg *apiConfig) handlerAddToCatalog(w http.ResponseWriter, r *http.Request
 	// Decode the incoming JSON request into the MangaRequest struct
 	var req MangaRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		log.Printf("handlerAddToCatalog: Invalid request payload: %v\n", err) // Debugging
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 	defer r.Body.Close()
-	log.Printf("handlerAddToCatalog: Request payload: %+v\n", req)
 
 	// Get the request context
 	ctx := r.Context()
-	log.Println("handlerAddToCatalog: Request context obtained") // Debugging
 
 	nullUserID := stringToNullUUID(req.UserID)
 
@@ -144,7 +132,6 @@ func (cfg *apiConfig) handlerAddToCatalog(w http.ResponseWriter, r *http.Request
 
 	// Call the InsertMangaIntoCatalog method with the constructed parameters
 	if err := cfg.DB.InsertMangaIntoCatalog(ctx, params); err != nil {
-		log.Printf("handlerAddToCatalog: Error inserting manga into catalog: %v\n", err) // Debugging
 		respondWithError(w, http.StatusInternalServerError, "Failed to add manga to catalog")
 		return
 	}
@@ -177,9 +164,6 @@ func (cfg *apiConfig) handlerStatusManga(w http.ResponseWriter, r *http.Request)
 		respondWithError(w, http.StatusBadRequest, "Invalid status value; only 'read' or 'bought' is allowed")
 		return
 	}
-
-	// Debugg
-	log.Printf("Payload received: %+v", req)
 
 	ctx := r.Context()
 

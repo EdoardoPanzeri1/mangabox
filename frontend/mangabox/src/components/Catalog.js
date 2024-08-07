@@ -32,15 +32,13 @@ const Catalog = () => {
     } else {
       fetchCatalog();
     }
-  }, [userID]);
+  }, [userID, fetchCatalog]);
 
   const deleteManga = async (id) => {
     if (!userID) {
       setMessage('You must be logged in to delete mangas');
       return;
     }
-  
-    console.log('Deleting manga with ID:', id); // Debug log
   
     try {
       const response = await axios.delete(`http://localhost:8080/mangas/${id}`, {
@@ -66,8 +64,6 @@ const Catalog = () => {
       setMessage('You must be logged in to update manga status');
       return;
     }
-  
-    console.log('Updating status to read for manga with ID:', id); // Debug log
   
     try {
       const payload = { status: newStatus, user_id: userID };
