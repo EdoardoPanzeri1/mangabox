@@ -32,7 +32,7 @@ const Catalog = () => {
     } else {
       fetchCatalog();
     }
-  }, [userID, fetchCatalog]);
+  }, [userID]);
 
   const deleteManga = async (id) => {
     if (!userID) {

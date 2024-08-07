@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TYPE status AS ENUM ('bought', 'reading', 'completed');
+CREATE TYPE status AS ENUM ('bought', 'read');
 
 -- +goose Down
 DROP TYPE status;
