@@ -1,5 +1,5 @@
-#Mangabox
-###Description:
+# Mangabox
+### Description:
 Mangabox is a user-friendly application for manga enthusiasts to search for, track, and manage their manga collections using data fetched from the Jikan API.
 
 Features:
