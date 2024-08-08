@@ -29,14 +29,12 @@ Mangabox is a user-friendly application for manga enthusiasts to search for, tra
    - Replace placeholders with your actual credentials and any necessary configuration.
 4. Run `docker-compose up --build` to set up and start the project.
 
-## Usage: 
+## Usage:
 
-Access the Mangabox frontend via your browser after installation.
-Search for manga and manage your catalog through the user-friendly interface.
-Contributions:
+- After installation, access the Mangabox frontend via your browser by navigating to `http://localhost:3000/`.
+- Use the interface to search for manga and manage your catalog.
 
-Contributions are welcome! Consider implementing additional features like filtering.
-Please follow contribution guidelines provided in the repository.
-Contact:
+## Contributions:
 
-For support or inquiries, reach out via [your contact email or platform].
+- Contributions are welcome! Consider implementing additional features like a wishlist to keep track of manga you plan to read and a social-like network feature to connect with other manga enthusiasts.
+- Please follow the contribution guidelines provided in the repository.
