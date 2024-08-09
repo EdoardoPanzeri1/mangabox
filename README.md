@@ -2,6 +2,10 @@
 
 Mangabox is a user-friendly application for manga enthusiasts to search for, track, and manage their manga collections using data fetched from the Jikan API.
 
+## Motivation:
+
+I have always been a huge fan of the Letterboxd application and wanted something similar for manga enthusiasts. After searching for a comparable platform and finding none that suited my needs, I decided to create Mangabox to fill that gap.
+
 ## Features:
 
 - **Search and View Manga:** Users can search and view details about their favorite manga.
