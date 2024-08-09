@@ -13,7 +13,7 @@ I have always been a huge fan of the Letterboxd application and wanted something
 - **User Authentication:** Secure account creation with username, email, and password, and the ability to update your profile.
 - **Database Security:** All data is handled securely in a local Dockerized environment.
 
-## Installation:
+## 🐳 Installation:
 
 1. Ensure you have Docker and Docker-Compose installed.
 2. Clone the repository and navigate to the root directory.
