@@ -34,7 +34,7 @@ Mangabox is a user-friendly application for manga enthusiasts to search for, tra
 - After installation, access the Mangabox frontend via your browser by navigating to `http://localhost:3000/`.
 - Use the interface to search for manga and manage your catalog.
 
-## Contributions:
+## Contributing:
 
 - Contributions are welcome! Consider implementing additional features like a wishlist to keep track of manga you plan to read and a social-like network feature to connect with other manga enthusiasts.
 - Please follow the contribution guidelines provided in the repository.
