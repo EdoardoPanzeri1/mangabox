@@ -2,18 +2,18 @@
 
 Mangabox is a user-friendly application for manga enthusiasts to search for, track, and manage their manga collections using data fetched from the Jikan API.
 
-## 📚 Motivation:
+## 📚 Motivation
 
 I have always been a huge fan of the Letterboxd application and wanted something similar for manga enthusiasts. After searching for a comparable platform and finding none that suited my needs, I decided to create Mangabox to fill that gap.
 
-## Features:
+## Features
 
 - **Search and View Manga:** Users can search and view details about their favorite manga.
 - **Catalog Management:** Add manga to your personal catalog and update its reading status from "bought" to "read," or delete unwanted entries.
 - **User Authentication:** Secure account creation with username, email, and password, and the ability to update your profile.
 - **Database Security:** All data is handled securely in a local Dockerized environment.
 
-## 🐳 Installation:
+## 🐳 Installation
 
 1. Ensure you have Docker and Docker-Compose installed.
 2. Clone the repository and navigate to the root directory.
@@ -33,12 +33,12 @@ I have always been a huge fan of the Letterboxd application and wanted something
    - Replace placeholders with your actual credentials and any necessary configuration.
 4. Run `docker-compose up --build` to set up and start the project.
 
-## Usage:
+## Usage
 
 - After installation, access the Mangabox frontend via your browser by navigating to `http://localhost:3000/`.
 - Use the interface to search for manga and manage your catalog.
 
-## 👏 Contributing:
+## 👏 Contributing
 
 - Contributions are welcome! Consider implementing additional features like a wishlist to keep track of manga you plan to read and a social-like network feature to connect with other manga enthusiasts.
 - Please follow the contribution guidelines provided in the repository.
