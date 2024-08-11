@@ -2,7 +2,7 @@
 
 Mangabox is a user-friendly application for manga enthusiasts to search for, track, and manage their manga collections using data fetched from the Jikan API.
 
-![Alt text]([URL-to-your-GIF](https://github.com/EdoardoPanzeri1/mangabox/blob/main/chrome_4nr1BPWlXv.gif?raw=true))
+![Mangabox Demo](https://github.com/EdoardoPanzeri1/mangabox/blob/main/chrome_4nr1BPWlXv.gif?raw=true)
 
 ## 📚 Motivation
 
